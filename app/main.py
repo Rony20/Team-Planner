@@ -4,4 +4,4 @@ app = FastAPI()
 
 @app.get("/")
 def demo():
-    return{"Success":"Server running"}
+   return { 'status': 'success'}
