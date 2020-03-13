@@ -19,14 +19,17 @@ class DatabaseConnector():
     def __init__(self):
         "Intialize Database"
 
-        try:
-            self._client = MongoClient(MONGODB_URI)
-        except errors.InvalidURI as uri_exception:
-            print(uri_exception)
-        except errors.ConfigurationError as configuration_exception:
-            print(configuration_exception)
-        except errors.ConnectionFailure as connection_error:
-            print(connection_error)
+        self._client = None
+    
+    def create_database_connection(self) -> None:
+        "This function will create database connection when application startsup"
+
+        self._client = MongoClient(MONGODB_URI)
+
+    def close_database_connection(self) -> None:
+        "This function will close database conection when application shutdowns"
+
+        self._client.close()
 
     @property
     def database(self) -> Database:
