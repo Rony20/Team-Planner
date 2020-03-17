@@ -6,7 +6,7 @@ from pymongo.collection import Collection
 from pymongo.database import Database
 
 from ..core.config import MONGODB_URI
-from ..utills.singleton import Singleton
+
 
 class Collections(str, Enum):
     """This is a ENUM class for Mongo Collectios"""
@@ -15,7 +15,7 @@ class Collections(str, Enum):
     EMPLOYEES = "employees"
 
 
-class DatabaseConnector(metaclass=Singleton):
+class DatabaseConnector():
     """This is database connection class"""
 
     def __init__(self):
