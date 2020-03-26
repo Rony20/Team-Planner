@@ -13,8 +13,12 @@ db_connector = DatabaseConnector()
 
 def createProject(project: Project) -> bool:
     """
-    createProject method create project and return boolean value 
-    based on wether the project is created successfully or not
+    createProject method takes project object as an argument and creates a record in the database.
+    
+    :param project: An object having data members such as id, name, assignedPM,... etc
+    :type project: Object, required
+    :return: Returns a boolean value indicating whether the project has been added to database or not.
+    :rtype: bool
     """
 
     project = dict(project)
@@ -26,11 +30,13 @@ def createProject(project: Project) -> bool:
     return created_document.acknowledged
 
 
-def getAllProjectDetails():
+def getAllProjectDetails() -> list:
     """
-    getAllProjectDetails method return all project list which is used to display project on dashboard
+    getAllProjectDetails method returns all projects data present inside the database.
+    
+    :return: Returns a list of project objects.
+    :rtype: List
     """
-
     list_project = db_connector.collection(Collections.PROJECTS).find({}, {"_id": 0})
     list_projects_to_be_send = []
     for project in list_project:
@@ -39,9 +45,15 @@ def getAllProjectDetails():
 
 
 
-def getProjectByPid(pid: int):
+def getProjectByPid(pid: int) -> dict:
     """
-    getProjectByPid method allow to search the project by project id
+    getProjectByPid method returns a particular project whose id is specified in the arguments.
+    
+    :param pid: An integer value representing unique project in the database.
+    :type pid: int
+    :raises HTTPException: If no project is found of the id passed, then Error-404 is returned. 
+    :return: Returns project object whose id was passed as argument, if no project is found then it raises an Exception.
+    :rtype: dict
     """
 
     project_with_given_pid = db_connector.collection(Collections.PROJECTS).find_one(
@@ -51,9 +63,15 @@ def getProjectByPid(pid: int):
     return project_with_given_pid
 
 
-def getProjectByProjectName(project_name: str):
+def getProjectByProjectName(project_name: str) -> list:
     """
-    getProjectByProjectName method allow to search project by project name
+    getProjectByProjectName returns a list of projects whose name is specified in the arguments.
+    
+    :param project_name: A string value represeting name of the project in the database.
+    :type project_name: str
+    :raises HTTPException: If no project is found of the name passed, then Error-404 is returned. 
+    :return: Returns project object whose name was passed as argument, if no project is found then it raises an Exception.
+    :rtype: list
     """
 
     list_project = []
@@ -68,8 +86,15 @@ def getProjectByProjectName(project_name: str):
 
 def updateProjectDetailsPmo(UpdateDetailsObj: ProjectUpdationByPmo, pid: int) -> int:
     """
-    updateProjectDetailsPmo method allow Pmo to update project details 
-    it return number of project for which details are modified (which is 0 OR 1)
+    updateProjectDetailsPmo method takes updation required in the project as object in argument and returns int.
+    
+    :param UpdateDetailsObj: An object having data members such as id, name, assignedPM,... etc
+    :type UpdateDetailsObj: ProjectUpdationByPmo
+    :param pid: An integer value representing unique project in the database.
+    :type pid: int
+    :raises HTTPException: If no project is found of the name passed, then Error-404 is returned.
+    :return: Returns a integer value indicating whether the project has been updated to database or not.
+    :rtype: int
     """
     
     project_at_pid = db_connector.collection(Collections.PROJECTS).find_one({"project_id": pid}, {"_id": 0})
@@ -89,8 +114,15 @@ def updateProjectDetailsPmo(UpdateDetailsObj: ProjectUpdationByPmo, pid: int) ->
 
 def updateProjectDetailsPm(UpdateDetailsObj: ProjectUpdationByPm, pid: int) -> int:
     """
-    updateProjectDetailsPm method allows pm to update project details
-    It also return integer which specify number of project modified (which is also 0 OR 1)
+    updateProjectDetailsPm method takes updation required in the project as object in argument and returns int.
+    
+    :param UpdateDetailsObj: An object having data members such as id, name, assignedPM,... etc
+    :type UpdateDetailsObj: ProjectUpdationByPm
+    :param pid: An integer value representing unique project in the database.
+    :type pid: int
+    :raises HTTPException: If no project is found of the name passed, then Error-404 is returned.
+    :return: Returns a integer value indicating whether the project has been updated to database or not.
+    :rtype: int
     """
     
     project_at_pid = db_connector.collection(Collections.PROJECTS).find_one({"project_id": pid}, {"_id": 0})
