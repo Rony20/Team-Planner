@@ -4,7 +4,7 @@ from enum import Enum
 from pymongo import MongoClient, errors
 from pymongo.collection import Collection
 from pymongo.database import Database
-
+from ..utills.singleton import Singleton
 from ..core.config import MONGODB_URI
 
 
@@ -15,7 +15,7 @@ class Collections(str, Enum):
     EMPLOYEES = "employees"
 
 
-class DatabaseConnector():
+class DatabaseConnector(metaclass=Singleton):
     """This is database connection class"""
 
     def __init__(self):
