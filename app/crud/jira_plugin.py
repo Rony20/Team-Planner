@@ -1,6 +1,6 @@
 from datetime import (
-    datetime, 
-    date, 
+    datetime,
+    date,
     timedelta
 )
 from typing import List
@@ -11,6 +11,7 @@ from ..crud.projects import createProject
 
 db_connector = DatabaseConnector()
 
+
 def extract_keys_from_database() -> List:
     """
     This method will fetch all projects keys from database
@@ -20,18 +21,20 @@ def extract_keys_from_database() -> List:
     :rtype: List
     """
 
-    projects = db_connector.collection(Collections.PROJECTS).find({}, {"_id":0, "project_id":1})
+    projects = db_connector.collection(Collections.PROJECTS).find({}, {
+        "_id": 0, "project_id": 1})
 
     database_key_list = list()
     for project in projects:
         database_key_list.append(project["project_id"])
     return database_key_list
 
+
 def get_untracked_keys() -> List:
-    """ 
+    """
     This method will fetch all projects keys from jira
     and compare them with database keys. This will return
-    the list of keys which are available in JIRA but 
+    the list of keys which are available in JIRA but
     not in Database.
 
     :return: Return a list of string keys.
@@ -45,10 +48,10 @@ def get_untracked_keys() -> List:
 
     untracked_key_list = list(set(jira_key_list) - set(database_key_list))
     return untracked_key_list
-    
-def insert_project_into_database(project) -> None:
 
-    """ 
+
+def insert_project_into_database(project) -> None:
+    """
     This method is kind of mapper method. It will
     convert project argument into database acceptable
     project format and stores project in database.
@@ -67,7 +70,7 @@ def insert_project_into_database(project) -> None:
 
 
 def sync_jira_with_database() -> None:
-    """ 
+    """
     This methods will only allow the projects to be
     stored in database which are in JIRA projects but
     not in database.

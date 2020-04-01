@@ -8,14 +8,15 @@ from typing import Dict, List
 
 from ..core.config import (
     JIRA_URL,
-    JIRA_USER, 
+    JIRA_USER,
     JIRA_PASSWORD
 )
 
 
 def get_project_keys() -> List:
     """
-    get_project_key() method crates a list of keys by fetching list of projects from JIRA api.
+    get_project_key() method crates a list of keys by
+    fetching list of projects from JIRA api.
 
     :return: List of string keys for projects.
     :rtype: list
@@ -23,7 +24,7 @@ def get_project_keys() -> List:
 
     response = requests.get(JIRA_URL, auth=(JIRA_USER, JIRA_PASSWORD))
     project_keys = list()
-    
+
     projects = json.loads(response.text)
 
     for project in projects:
@@ -39,11 +40,13 @@ def get_project_from_jira(key) -> Dict:
 
     :param key: Unique key for JIRA project.
     :type key: str
-    :return: Return a Dict object having fields projec_id, project_name, assigned_pm and status.
+    :return: Return a Dict object having fields projec_id,
+     project_name, assigned_pm and status.
     :rtype: Dict
     """
 
-    new_response = requests.get(JIRA_URL+'/'+key, auth=(JIRA_USER, JIRA_PASSWORD))
+    new_response = requests.get(
+        JIRA_URL+'/'+key, auth=(JIRA_USER, JIRA_PASSWORD))
     project_details = json.loads(new_response.text)
 
     new_project_details = {
@@ -52,7 +55,8 @@ def get_project_from_jira(key) -> Dict:
         "assigned_pm": project_details["lead"]["displayName"],
         "status": not project_details["archived"]
     }
-    return new_project_details    
+    return new_project_details
+
 
 def get_all_jira_projects(list_of_project_keys) -> List:
     """
@@ -62,15 +66,17 @@ def get_all_jira_projects(list_of_project_keys) -> List:
 
     :param list_of_project_keys: list of unique key for JIRA project.
     :type list_of_project_keys: List
-    :return: Return a list of Dict object having fields projec_id, project_name, assigned_pm and status.
+    :return: Return a list of Dict object having fields
+     projec_id, project_name, assigned_pm and status.
     :rtype: List
     """
 
     projects_list = list()
 
-    with concurrent.futures.ThreadPoolExecutor(max_workers= len(list_of_project_keys)) as executor:
-        future_to_url = { executor.submit(get_project_from_jira, key): key for key in list_of_project_keys}
+    with concurrent.futures.ThreadPoolExecutor(max_workers=len(list_of_project_keys)) as executor:
+        future_to_url = {executor.submit(
+            get_project_from_jira, key): key for key in list_of_project_keys}
         for future in concurrent.futures.as_completed(future_to_url):
             projects_list.append(future.result())
-    
+
     return projects_list
