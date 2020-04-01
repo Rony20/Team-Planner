@@ -18,5 +18,3 @@ def return_jira_projects(sync_name: str):
         return "success"
     else:
         raise HTTPException(404, f"{sync_name} is not valid parameter")
-
-
