@@ -14,8 +14,10 @@ class ProjectUpdationByPmo(BaseModel):
         if value == "":
             raise ValueError("Invalid : ProjectName cannot be empty")
         return value
-    assigned_pm: List[int] = None
+    assigned_pm: int = None
+    start_date: datetime = None
     end_date: datetime = None
+    skillset: List[int] = None
 
 
 class ProjectUpdationByPm(BaseModel):
@@ -38,8 +40,8 @@ class AllocationForProject(BaseModel):
     information about employee's weekly allocation
     """
 
-    week: List[datetime]
-    hours: List[int] = []
+    week: List[datetime] = None
+    hours: List[int] = None
 
 
 class Project(BaseModel):
@@ -48,7 +50,7 @@ class Project(BaseModel):
     project along with all allocation which is made in past
     """
 
-    project_id: int
+    project_id: str
     project_name: str
     @validator("project_name")
     def validate_name(cls, value):
@@ -56,17 +58,16 @@ class Project(BaseModel):
             raise ValueError("Invalid : ProjectName cannot be empty")
         return value
 
-    assigned_pm: List[int] = None
+    assigned_pm: int = None
     @validator("assigned_pm")
     def validate_assigned_pm(cls, value):
-        for element in value:
-            if not isinstance(element, int):
-                raise ValueError("Invalid : value should be integer")
+        if not isinstance(value, int):
+            raise ValueError("Invalid : value should be integer")
         return value
 
     start_date: datetime = None
     end_date: datetime = None
     allocated_employees: Dict[str, List[AllocationForProject]] = None
     status: bool
-    technologies: List[str] = []
-    description: str
+    skillset: List[int]
+    description: str = None

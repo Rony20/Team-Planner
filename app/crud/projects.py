@@ -1,11 +1,15 @@
+import pymongo
+
 from fastapi import HTTPException
+from fastapi.encoders import jsonable_encoder
+from pymongo import ReturnDocument
 
 from ..db.mongodb_utils import DatabaseConnector, Collections
 from ..models.projects import (
     Project,
     ProjectUpdationByPmo,
     ProjectUpdationByPm,
-    AllocationForProject
+    AllocationForProject,
 )
 
 db_connector = DatabaseConnector()
@@ -22,10 +26,11 @@ def createProject(project: Project) -> bool:
     """
 
     project = dict(project)
-    project["allocated_employees"] = dict(project["allocated_employees"])
-    for key, value in project["allocated_employees"].items():
-        for index in range(0, len(value)):
-            (project["allocated_employees"])[key] = list(map(dict, value))
+    if project["allocated_employees"] != None:
+        project["allocated_employees"] = dict(project["allocated_employees"])
+        for key, value in project["allocated_employees"].items():
+            for index in range(0, len(value)):
+                (project["allocated_employees"])[key] = list(map(dict, value))
     created_document = db_connector.collection(Collections.PROJECTS).insert_one(project)
     return created_document.acknowledged
 
@@ -37,7 +42,7 @@ def getAllProjectDetails() -> list:
     :return: Returns a list of project objects.
     :rtype: List
     """
-    list_project = db_connector.collection(Collections.PROJECTS).find({}, {"_id": 0})
+    list_project = db_connector.collection(Collections.PROJECTS).find({}, {"_id": 0}).sort("project_name",pymongo.ASCENDING)
     list_projects_to_be_send = []
     for project in list_project:
         list_projects_to_be_send.append(project)
@@ -45,12 +50,12 @@ def getAllProjectDetails() -> list:
 
 
 
-def getProjectByPid(pid: int) -> dict:
+def getProjectByPid(pid: str) -> dict:
     """
     getProjectByPid method returns a particular project whose id is specified in the arguments.
     
     :param pid: An integer value representing unique project in the database.
-    :type pid: int
+    :type pid: str
     :raises HTTPException: If no project is found of the id passed, then Error-404 is returned. 
     :return: Returns project object whose id was passed as argument, if no project is found then it raises an Exception.
     :rtype: dict
@@ -84,16 +89,16 @@ def getProjectByProjectName(project_name: str) -> list:
         return list_project
 
 
-def updateProjectDetailsPmo(UpdateDetailsObj: ProjectUpdationByPmo, pid: int) -> int:
+def updateProjectDetailsPmo(UpdateDetailsObj: ProjectUpdationByPmo, pid: str) -> dict:
     """
     updateProjectDetailsPmo method takes updation required in the project as object in argument and returns int.
     
     :param UpdateDetailsObj: An object having data members such as id, name, assignedPM,... etc
     :type UpdateDetailsObj: ProjectUpdationByPmo
     :param pid: An integer value representing unique project in the database.
-    :type pid: int
+    :type pid: str
     :raises HTTPException: If no project is found of the name passed, then Error-404 is returned.
-    :return: Returns a integer value indicating whether the project has been updated to database or not.
+    :return: Returns a updated document from database otherwise returns None.
     :rtype: int
     """
     
@@ -103,25 +108,27 @@ def updateProjectDetailsPmo(UpdateDetailsObj: ProjectUpdationByPmo, pid: int) ->
 
     UpdateDetailsObj = UpdateDetailsObj.dict(exclude_unset=True)
     UpdateDetailsObj = dict(UpdateDetailsObj)
-    updated_obj = db_connector.collection(Collections.PROJECTS).update_one(
+    updated_obj = db_connector.collection(Collections.PROJECTS).find_one_and_update(
         {"project_id": pid},
         {
             "$set": UpdateDetailsObj
-        }
+        },
+        projection={"_id": False},
+        return_document=ReturnDocument.AFTER
     )
-    return updated_obj.modified_count
+    return updated_obj
 
 
-def updateProjectDetailsPm(UpdateDetailsObj: ProjectUpdationByPm, pid: int) -> int:
+def updateProjectDetailsPm(UpdateDetailsObj: ProjectUpdationByPm, pid: str) -> dict:
     """
     updateProjectDetailsPm method takes updation required in the project as object in argument and returns int.
     
     :param UpdateDetailsObj: An object having data members such as id, name, assignedPM,... etc
     :type UpdateDetailsObj: ProjectUpdationByPm
     :param pid: An integer value representing unique project in the database.
-    :type pid: int
+    :type pid: str
     :raises HTTPException: If no project is found of the name passed, then Error-404 is returned.
-    :return: Returns a integer value indicating whether the project has been updated to database or not.
+    :return: Returns a updated document from database otherwise returns None.
     :rtype: int
     """
     
@@ -132,10 +139,12 @@ def updateProjectDetailsPm(UpdateDetailsObj: ProjectUpdationByPm, pid: int) -> i
 
     UpdateDetailsObj = UpdateDetailsObj.dict(exclude_unset=True)
     UpdateDetailsObj = dict(UpdateDetailsObj)
-    update_information_object = db_connector.collection(Collections.PROJECTS).update_one(
+    update_information_object = db_connector.collection(Collections.PROJECTS).find_one_and_update(
         {"project_id": pid},
         {
             "$set": UpdateDetailsObj
-        }
+        },
+        projection={"_id": False},
+        return_document=ReturnDocument.AFTER
     )
-    return update_information_object.modified_count
+    return update_information_object
