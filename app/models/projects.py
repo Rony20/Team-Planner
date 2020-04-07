@@ -3,19 +3,26 @@ from typing import List, Dict
 from datetime import datetime
 
 
-class ProjectUpdationByPmo(BaseModel):
+class AllocationForProject(BaseModel):
     """
-    ProjectUpdationByPmo class has all attributes which can be changed by pmo
+    AllocationForProject class contains attributes which store
+    information about employee's weekly allocation
     """
 
-    project_name: str = None
-    @validator("project_name")
-    def validate_name(cls, value):
-        if value == "":
-            raise ValueError("Invalid : ProjectName cannot be empty")
-        return value
-    assigned_pm: List[int] = None
-    end_date: datetime = None
+    week: List[datetime] = None
+    hours: List[int] = None
+
+
+class AllocatedEmployees(BaseModel):
+    """
+    AllocatedEmployees represents employees under a specific project
+
+    :param BaseModel: inhertitence from BaseModel
+    :type BaseModel: class
+    """
+    employee_id: int
+    status: bool
+    allocation: List[AllocationForProject]
 
 
 class ProjectUpdationByPm(BaseModel):
@@ -32,14 +39,22 @@ class ProjectUpdationByPm(BaseModel):
     technologies: List[str] = None
 
 
-class AllocationForProject(BaseModel):
+class ProjectUpdationByPmo(BaseModel):
     """
-    AllocationForProject class contains attributes which store
-    information about employee's weekly allocation
+    ProjectUpdationByPmo class has all attributes which can be changed by pmo
     """
 
-    week: List[datetime]
-    hours: List[int] = []
+    project_name: str = None
+    @validator("project_name")
+    def validate_name(cls, value):
+        if value == "":
+            raise ValueError("Invalid : ProjectName cannot be empty")
+        return value
+    assigned_pm: int = None
+    start_date: datetime = None
+    end_date: datetime = None
+    allocated_employees: List[AllocatedEmployees] = []
+    skillset: List[int] = None
 
 
 class Project(BaseModel):
@@ -48,7 +63,7 @@ class Project(BaseModel):
     project along with all allocation which is made in past
     """
 
-    project_id: int
+    project_id: str
     project_name: str
     @validator("project_name")
     def validate_name(cls, value):
@@ -56,17 +71,10 @@ class Project(BaseModel):
             raise ValueError("Invalid : ProjectName cannot be empty")
         return value
 
-    assigned_pm: List[int] = None
-    @validator("assigned_pm")
-    def validate_assigned_pm(cls, value):
-        for element in value:
-            if not isinstance(element, int):
-                raise ValueError("Invalid : value should be integer")
-        return value
-
-    start_date: datetime = None
-    end_date: datetime = None
-    allocated_employees: Dict[str, List[AllocationForProject]] = None
+    assigned_pm: int = 0
+    start_date: datetime = ""
+    end_date: datetime = ""
+    allocated_employees: List[AllocatedEmployees] = []
     status: bool
-    technologies: List[str] = []
-    description: str
+    skillset: List[int] = []
+    description: str = ""
