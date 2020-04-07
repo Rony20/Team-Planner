@@ -5,7 +5,6 @@ from enum import Enum
 
 from .singleton import Singleton
 from ..db.mongodb_utils import DatabaseConnector, Collections
-from ..models.log import Log
 
 db_connector = DatabaseConnector()
 

@@ -8,7 +8,6 @@ class AllocationForProject(BaseModel):
     AllocationForProject class contains attributes which store
     information about employee's weekly allocation
     """
-
     week: List[datetime] = None
     hours: List[int] = None
 
@@ -70,7 +69,6 @@ class Project(BaseModel):
         if value == "":
             raise ValueError("Invalid : ProjectName cannot be empty")
         return value
-
     assigned_pm: int = 0
     start_date: datetime = ""
     end_date: datetime = ""

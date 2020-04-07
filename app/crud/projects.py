@@ -2,12 +2,13 @@ from fastapi import HTTPException
 from fastapi.encoders import jsonable_encoder
 from pymongo import ReturnDocument
 from typing import List, Dict
+
 from ..db.mongodb_utils import DatabaseConnector, Collections
 from ..models.projects import (
     Project,
     ProjectUpdationByPmo,
     ProjectUpdationByPm,
-    AllocationForProject,
+    AllocationForProject
 )
 
 db_connector = DatabaseConnector()
@@ -39,6 +40,7 @@ def getAllProjectDetails() -> list:
     :return: Returns a list of project objects.
     :rtype: List
     """
+
     list_project = db_connector.collection(Collections.PROJECTS).find(
         {}, {"_id": 0}).sort("project_name", pymongo.ASCENDING)
     list_projects_to_be_send = []
@@ -99,6 +101,7 @@ def updateProjectDetailsPmo(UpdateDetailsObj: ProjectUpdationByPmo, pid: str) ->
     :return: Returns a updated document from database otherwise returns None.
     :rtype: dict
     """
+
     project_at_pid = db_connector.collection(Collections.PROJECTS).find_one({
         "project_id": pid}, {"_id": 0})
     if project_at_pid == None:
@@ -181,7 +184,7 @@ def updateProjectDetailsPm(UpdateDetailsObj: ProjectUpdationByPm, pid: str) -> d
 def createUpdateTeam(req_obj: Dict, pid: str) -> dict:
     """
     createUpdateTeam method creates team of employees for a particular project 
-    
+
     :param req_obj: contains list of integers representing employees
     :type req_obj: Dict
     :param pid: An string value representing unique project in the database.
@@ -189,6 +192,7 @@ def createUpdateTeam(req_obj: Dict, pid: str) -> dict:
     :return: Returns a updated document from database otherwise returns None.
     :rtype: dict
     """
+    
     allocated_employees = req_obj["allocated_employees"]
     my_query = {"project_id": pid}
     for employee in allocated_employees:
