@@ -39,7 +39,7 @@ def getAllProjectDetailsApi():
     whose pid is passed in path parameter
 """
 @router.get("/api/projectdata-by-pid/{pid}")
-def getProjectByPidApi(pid: int):
+def getProjectByPidApi(pid: str):
     return getProjectByPid(pid)
 
 
@@ -56,7 +56,7 @@ def getProjectByProjectNameApi(project_name: str):
     api which will update project details by pmo
 """
 @router.patch("/api/update-project-details-pmo/{pid}")
-def updateProjectDetailsPmoApi(UpdateDetailsObj: ProjectUpdationByPmo, pid: int) -> int:
+def updateProjectDetailsPmoApi(UpdateDetailsObj: ProjectUpdationByPmo, pid: str) -> int:
     return updateProjectDetailsPmo(UpdateDetailsObj, pid)
 
 
@@ -64,5 +64,5 @@ def updateProjectDetailsPmoApi(UpdateDetailsObj: ProjectUpdationByPmo, pid: int)
     api which will update project details by pm
 """
 @router.patch("/api/update-project-details-pm/{pid}")
-def updateProjectDetailsPmApi(UpdateDetailsObj: ProjectUpdationByPm, pid: int) -> int:
+def updateProjectDetailsPmApi(UpdateDetailsObj: ProjectUpdationByPm, pid: str) -> int:
     return updateProjectDetailsPm(UpdateDetailsObj, pid)
