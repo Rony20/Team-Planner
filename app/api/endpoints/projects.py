@@ -6,14 +6,14 @@ from ...crud.projects import (
     getProjectByProjectName,
     getProjectByPid,
     createProject,
-    getAllProjectDetails,
+    getAllProjectDetails
 )
 
 from ...models.projects import (
     ProjectUpdationByPmo,
     ProjectUpdationByPm,
     Project,
-    AllocationForProject,
+    AllocationForProject
 )
 
 router = APIRouter()

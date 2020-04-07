@@ -1,5 +1,3 @@
-import pymongo
-
 from fastapi import HTTPException
 from fastapi.encoders import jsonable_encoder
 from pymongo import ReturnDocument
@@ -9,7 +7,8 @@ from ..models.projects import (
     Project,
     ProjectUpdationByPmo,
     ProjectUpdationByPm,
-    AllocationForProject,
+    AllocationForProject
+
 )
 
 db_connector = DatabaseConnector()
@@ -31,6 +30,7 @@ def createProject(project: Project) -> bool:
         for key, value in project["allocated_employees"].items():
             for index in range(0, len(value)):
                 (project["allocated_employees"])[key] = list(map(dict, value))
+
     created_document = db_connector.collection(Collections.PROJECTS).insert_one(project)
     return created_document.acknowledged
 
@@ -43,6 +43,7 @@ def getAllProjectDetails() -> list:
     :rtype: List
     """
     list_project = db_connector.collection(Collections.PROJECTS).find({}, {"_id": 0}).sort("project_name",pymongo.ASCENDING)
+
     list_projects_to_be_send = []
     for project in list_project:
         list_projects_to_be_send.append(project)
@@ -51,6 +52,7 @@ def getAllProjectDetails() -> list:
 
 
 def getProjectByPid(pid: str) -> dict:
+
     """
     getProjectByPid method returns a particular project whose id is specified in the arguments.
     
@@ -90,6 +92,7 @@ def getProjectByProjectName(project_name: str) -> list:
 
 
 def updateProjectDetailsPmo(UpdateDetailsObj: ProjectUpdationByPmo, pid: str) -> dict:
+
     """
     updateProjectDetailsPmo method takes updation required in the project as object in argument and returns int.
     
@@ -99,6 +102,7 @@ def updateProjectDetailsPmo(UpdateDetailsObj: ProjectUpdationByPmo, pid: str) ->
     :type pid: str
     :raises HTTPException: If no project is found of the name passed, then Error-404 is returned.
     :return: Returns a updated document from database otherwise returns None.
+
     :rtype: int
     """
     
@@ -129,6 +133,7 @@ def updateProjectDetailsPm(UpdateDetailsObj: ProjectUpdationByPm, pid: str) -> d
     :type pid: str
     :raises HTTPException: If no project is found of the name passed, then Error-404 is returned.
     :return: Returns a updated document from database otherwise returns None.
+
     :rtype: int
     """
     
@@ -148,3 +153,4 @@ def updateProjectDetailsPm(UpdateDetailsObj: ProjectUpdationByPm, pid: str) -> d
         return_document=ReturnDocument.AFTER
     )
     return update_information_object
+

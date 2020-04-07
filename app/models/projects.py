@@ -44,6 +44,7 @@ class AllocationForProject(BaseModel):
     hours: List[int] = None
 
 
+
 class Project(BaseModel):
     """
     Project class contain all information related to
@@ -71,3 +72,4 @@ class Project(BaseModel):
     status: bool
     skillset: List[int]
     description: str = None
+

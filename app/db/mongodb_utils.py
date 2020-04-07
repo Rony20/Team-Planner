@@ -7,6 +7,7 @@ from pymongo.database import Database
 from ..utils.singleton import Singleton
 from ..core.config import MONGODB_URI
 
+
 class Collections(str, Enum):
     """This is a ENUM class for Mongo Collectios"""
 
