@@ -14,7 +14,7 @@ def validate_date(value):
     :return: bool value if date satisfies the regex
     :rtype: bool
     """
-    if not date_regex.fullmatch(value):
+    if date_regex.fullmatch(value):
         return True
     else:
         return False
@@ -69,17 +69,17 @@ class ProjectUpdationByPmo(BaseModel):
     assigned_pm: int = None
     start_date: str = None
     end_date: str = None
-    allocated_employees: List[AllocatedEmployees] = []
     skillset: List[int] = None
     @validator("start_date")
     def validate_date(cls, value):
         if(not validate_date(value)):
-            raise ValueError("Invalid Date format.") 
+            raise ValueError("Invalid Date format.")
+        return value 
     @validator("end_date")
     def validate_date2(cls, value):
         if(not validate_date(value)):
             raise ValueError("Invalid Date format.") 
-
+        return value
 
 class Project(BaseModel):
     """
@@ -103,8 +103,10 @@ class Project(BaseModel):
     @validator("start_date")
     def validate_date(cls, value):
         if(not validate_date(value)):
-            raise ValueError("Invalid Date format.") 
+            raise ValueError("Invalid Date format.")
+        return value
     @validator("end_date")
     def validate_date2(cls, value):
         if(not validate_date(value)):
             raise ValueError("Invalid Date format.") 
+        return value

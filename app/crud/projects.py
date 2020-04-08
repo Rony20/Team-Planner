@@ -109,21 +109,9 @@ def updateProjectDetailsPmo(UpdateDetailsObj: ProjectUpdationByPmo, pid: str) ->
 
     my_query = {"project_id": pid}
     UpdateDetailsObj = UpdateDetailsObj.dict(exclude_unset=True)
+    print(UpdateDetailsObj)
     UpdateDetailsObj = jsonable_encoder(UpdateDetailsObj)
-    if "allocated_employees" in UpdateDetailsObj:
-        for employee in UpdateDetailsObj["allocated_employees"]:
-            add_employee = {
-                "allocated_employees": employee
-            }
-            updated_obj = db_connector.collection(Collections.PROJECTS).find_one_and_update(
-                my_query,
-                {
-                    "$push": add_employee
-                },
-                projection={"_id": False},
-                return_document=ReturnDocument.AFTER
-            )
-    elif "skillset" in UpdateDetailsObj:
+    if "skillset" in UpdateDetailsObj:
         for skill in UpdateDetailsObj["skillset"]:
             add_skill = {
                 "skillset": skill
@@ -138,12 +126,17 @@ def updateProjectDetailsPmo(UpdateDetailsObj: ProjectUpdationByPmo, pid: str) ->
                 return_document=ReturnDocument.AFTER
             )
     else:
+        print(UpdateDetailsObj)
         updated_obj = db_connector.collection(Collections.PROJECTS).find_one_and_update(
             my_query,
             {
                 "$set": UpdateDetailsObj
             },
-            projection={"_id": False},
+            projection={"_id": False,
+            "allocated_employees": False,
+            "description": False,
+            "status": False,
+            "project_name": False},
             return_document=ReturnDocument.AFTER
         )
     return updated_obj
