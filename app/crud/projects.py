@@ -1,3 +1,5 @@
+import pymongo
+
 from fastapi import HTTPException
 from fastapi.encoders import jsonable_encoder
 from pymongo import ReturnDocument
@@ -109,36 +111,20 @@ def updateProjectDetailsPmo(UpdateDetailsObj: ProjectUpdationByPmo, pid: str) ->
 
     my_query = {"project_id": pid}
     UpdateDetailsObj = UpdateDetailsObj.dict(exclude_unset=True)
-    print(UpdateDetailsObj)
     UpdateDetailsObj = jsonable_encoder(UpdateDetailsObj)
-    if "skillset" in UpdateDetailsObj:
-        for skill in UpdateDetailsObj["skillset"]:
-            add_skill = {
-                "skillset": skill
-            }
-            updated_obj = db_connector.collection(
-                Collections.PROJECTS).find_one_and_update(
-                my_query,
-                {
-                    "$push": add_skill
-                },
-                projection={"_id": False},
-                return_document=ReturnDocument.AFTER
-            )
-    else:
-        print(UpdateDetailsObj)
-        updated_obj = db_connector.collection(Collections.PROJECTS).find_one_and_update(
-            my_query,
-            {
-                "$set": UpdateDetailsObj
-            },
-            projection={"_id": False,
-            "allocated_employees": False,
-            "description": False,
-            "status": False,
-            "project_name": False},
-            return_document=ReturnDocument.AFTER
-        )
+    
+    updated_obj = db_connector.collection(Collections.PROJECTS).find_one_and_update(
+        my_query,
+        {
+            "$set": UpdateDetailsObj
+        },
+        projection={"_id": False,
+        "allocated_employees": False,
+        "description": False,
+        "status": False
+        },
+        return_document=ReturnDocument.AFTER
+    )
     return updated_obj
 
 
@@ -190,9 +176,9 @@ def createUpdateTeam(req_obj: Dict, pid: str) -> dict:
     my_query = {"project_id": pid}
     for employee in allocated_employees:
         add_employee = {
-            "employee_id": employee,
-            "status": True,
-            "allocation": []
+            "id": employee,
+            "status": "Active",
+            "allocations": []
         }
         emp_object = {
             "allocated_employees": add_employee
