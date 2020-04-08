@@ -209,7 +209,14 @@ def createUpdateTeam(req_obj: Dict, pid: str) -> dict:
             {
                 "$push": emp_object
             },
-            projection={"_id": False},
+            projection={"_id": False,
+                        "project_name": False,
+                        "assigned_pm": False,
+                        "start_date": False,
+                        "end_date": False,
+                        "status": False,
+                        "skillset": False,
+                        "description": False},
             return_document=ReturnDocument.AFTER
         )
     return updated_obj
