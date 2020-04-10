@@ -9,7 +9,9 @@ from ..models.employees import (
     Employee,
     UpdateEmployee,
     PastProjects,
-    CurrentProjects
+    CurrentProjects,
+    AllocationForProject,
+    Availability
 )
 
 db_connector = DatabaseConnector()
@@ -33,7 +35,7 @@ def create_employee(employee: Employee) -> bool:
             "skills": employee.skills,
             "past_projects": jsonable_encoder(employee.past_projects),
             "current_projects": jsonable_encoder(employee.current_projects),
-            "availability": employee.availability,
+            "availability": jsonable_encoder(employee.availability),
             "is_allocated": employee.is_allocated
         })
     return response_object.acknowledged
@@ -45,7 +47,7 @@ def edit_employee(employee_id: int, update_employee: UpdateEmployee) -> dict:
 
     :param employee_id: Integer represeting a partiular employee in the database.
     :type employee_id: int
-    :param update_employee: UpdateEmployee object having data members like id, name, skills, current_projects, past_projects,...etc.
+    :param update_employee: UpdateEmployee object having data members like skills, current_projects, past_projects,...etc.
     :type update_employee: UpdateEmployee
     :return: Returns a dict containing how many records have been updated in the database, message and status code.
     :rtype: Dict
@@ -54,17 +56,25 @@ def edit_employee(employee_id: int, update_employee: UpdateEmployee) -> dict:
     my_query = {"employee_id": employee_id}
     new_values = update_employee.dict(exclude_unset=True)
 
-    if "skills" or "current_projects" or "past_projects" in new_values:
-        changed_object = db_connector.collection(Collections.EMPLOYEES).update_one(
-            my_query, {"$push": jsonable_encoder(new_values)})
+    if "current_projects" or "past_projects" in new_values:
+        changed_employee = db_connector.collection(
+            Collections.EMPLOYEES).find_one_and_update(
+            my_query,
+            {
+                "$push": jsonable_encoder(new_values)
+            },
+            projection={"_id": False},
+            return_document=ReturnDocument.AFTER)
     else:
-        changed_object = db_connector.collection(Collections.EMPLOYEES).update_one(
-            my_query, {"$set": jsonable_encoder(new_values)})
-    return {
-        "modified_documents": changed_object.modified_count,
-        "message": "success",
-        "status_code": 200
-    }
+        changed_employee = db_connector.collection(
+            Collections.EMPLOYEES).find_one_and_update(
+            my_query,
+            {
+                "$set": jsonable_encoder(new_values)
+            },
+            projection={"_id": False},
+            return_document=ReturnDocument.AFTER)
+    return changed_employee
 
 
 def send_all_employee() -> dict:
@@ -79,9 +89,7 @@ def send_all_employee() -> dict:
             Collections.EMPLOYEES).find({}, {"_id": False}):
         all_employees.append(emp_obj)
     return {
-        "all_employees": all_employees,
-        "message": "success",
-        "status_code": 200
+        "all_employees": all_employees
     }
 
 
@@ -102,8 +110,6 @@ def send_employee_by_id(employee_id: int) -> dict:
         raise HTTPException(status_code=404, detail="Employee not found")
     return {
         "employee": emp_obj,
-        "message": "success",
-        "status_code": 200
     }
 
 
