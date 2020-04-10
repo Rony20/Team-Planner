@@ -67,7 +67,7 @@ def edit_employee(employee_id: int, update_employee: UpdateEmployee) -> dict:
     }
 
 
-def send_all_employee() -> dict:
+def send_all_employee() -> List:
     """
     send_all_employee method returns all employee details present in the database.
 
@@ -78,11 +78,7 @@ def send_all_employee() -> dict:
     for emp_obj in db_connector.collection(
             Collections.EMPLOYEES).find({}, {"_id": False}):
         all_employees.append(emp_obj)
-    return {
-        "all_employees": all_employees,
-        "message": "success",
-        "status_code": 200
-    }
+    return all_employees
 
 
 def send_employee_by_id(employee_id: int) -> dict:
