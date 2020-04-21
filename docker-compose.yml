@@ -1,0 +1,30 @@
+version: '3'
+
+services:
+
+ mongodb:
+  image: mongo:latest
+  ports:
+   - 27017:27017
+  container_name: mongodb      
+  volumes:
+   - /data/db:/data/db  
+  restart: always
+
+ resource-planner-backend:
+  build: ./resource-planner-backend
+  container_name: resource-planner-backend
+  volumes:
+   - ./resource-planner-backend:/rpbackend
+  ports:
+   - 8000:8000
+  links:
+   - mongodb
+
+ resource-planner-ui:
+  build: ./resource-planner-ui
+  container_name: resource-planner-ui
+  ports:
+   - 8080:8080
+  links:
+   - resource-planner-backend
