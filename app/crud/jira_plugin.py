@@ -8,8 +8,16 @@ from typing import List
 from ..db.mongodb_utils import DatabaseConnector, Collections
 from ..utils.jira_plugin import get_project_keys, get_all_jira_projects
 from ..crud.projects import createProject
+from ..crud.dropdowns import get_pm_list
 
 db_connector = DatabaseConnector()
+
+def get_pm_id(name):
+    pm_list = get_pm_list()
+
+    for pm in pm_list:
+        if[pm["value"] == name]:
+            return pm["code"]
 
 
 def extract_keys_from_database() -> List:
@@ -62,8 +70,13 @@ def insert_project_into_database(project) -> None:
     project_object = {
         'project_id': project["project_id"],
         'project_name': project["project_name"],
-        'assigned_pm': project["assigned_pm"],
+        'assigned_pm': get_pm_id(project["assigned_pm"]),
+        'start_date': "",
+        'end_date': "",
+        'allocated_employees': [],
         'status': project["status"],
+        'skillset': [],
+        'description': ""
     }
 
     createProject(project_object)

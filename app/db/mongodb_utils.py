@@ -13,7 +13,7 @@ class Collections(str, Enum):
 
     PROJECTS = "projects"
     EMPLOYEES = "employees"
-
+    COC = "COC"
 
 class DatabaseConnector(metaclass=Singleton):
     """This is database connection class"""

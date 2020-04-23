@@ -1,4 +1,5 @@
 from fastapi import APIRouter
+from typing import List, Dict
 
 from ...crud.projects import (
     updateProjectDetailsPmo,
@@ -6,14 +7,15 @@ from ...crud.projects import (
     getProjectByProjectName,
     getProjectByPid,
     createProject,
-    getAllProjectDetails
+    getAllProjectDetails,
+    createUpdateTeam
 )
 
 from ...models.projects import (
     ProjectUpdationByPmo,
     ProjectUpdationByPm,
     Project,
-    AllocationForProject
+    AllocationForProject,
 )
 
 router = APIRouter()
@@ -66,3 +68,7 @@ def updateProjectDetailsPmoApi(UpdateDetailsObj: ProjectUpdationByPmo, pid: str)
 @router.patch("/api/update-project-details-pm/{pid}")
 def updateProjectDetailsPmApi(UpdateDetailsObj: ProjectUpdationByPm, pid: str) -> int:
     return updateProjectDetailsPm(UpdateDetailsObj, pid)
+
+@router.patch("/api/create-update-team/{pid}")
+def createUpdateTeamApi(req_obj: Dict, pid:str):
+    return createUpdateTeam(req_obj, pid)
