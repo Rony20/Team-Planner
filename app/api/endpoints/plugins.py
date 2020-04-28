@@ -3,6 +3,7 @@ from fastapi.exceptions import HTTPException
 
 from ...utils.jira_plugin import get_all_jira_projects, get_project_keys
 from ...crud.jira_plugin import sync_jira_with_database
+from ...crud.hrms_plugin import sync_hrms_with_database
 from ...crud.dropdowns import get_dropdowns
 
 router = APIRouter()
@@ -14,6 +15,9 @@ router = APIRouter()
 def return_jira_projects(sync_name: str):
     if sync_name == 'jira':
         sync_jira_with_database()
+        return "success"
+    if sync_name == 'hrms':
+        sync_hrms_with_database()
         return "success"
     else:
         raise HTTPException(404, f"{sync_name} is not valid parameter")
