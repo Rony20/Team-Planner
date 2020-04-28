@@ -8,7 +8,8 @@ MONGO_PORT = os.getenv("MONGO_PORT")
 DB_NAME = os.getenv("DB_NAME")
 
 # Fetching MongoDB credentials form environment file"
-MONGODB_URI = (f"mongodb://{MONGO_CONTAINER}:{MONGO_PORT}/{DB_NAME}")
+# MONGODB_URI = (f"mongodb://{MONGO_CONTAINER}:{MONGO_PORT}/{DB_NAME}")
+MONGODB_URI = f"mongodb://localhost:27017/"
 
 # Jira credentials
 
