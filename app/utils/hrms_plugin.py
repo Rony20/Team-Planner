@@ -63,7 +63,7 @@ def get_auth_token():
     except requests.exceptions.TooManyRedirects:
         raise HTTPException(status_code=310, detail="Too many redirects !")
     except requests.exceptions.RequestException as e:
-        raise HTTPException(detail=e)
+        raise HTTPException(status_code=300, detail=e)
     else:
         auth_data = response.json()
         return auth_data.get('token')
