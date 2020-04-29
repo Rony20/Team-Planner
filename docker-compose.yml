@@ -16,7 +16,12 @@ services:
   container_name: resource-planner-backend
   volumes:
    - ./resource-planner-backend:/rpbackend
-  ports:
+  environment: 
+   - HRMS_USER = abc.xyz
+   - ENCRYPTED_PASS = xyxbakawql./==
+   - LOGIN_URL = http://10.0.9.188:7000/login
+   - GRAPHQL_URL = http://10.0.9.188:7000/graphql
+   ports:
    - 8000:8000
   links:
    - mongodb

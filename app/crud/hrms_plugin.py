@@ -1,5 +1,6 @@
 import json
 from collections import namedtuple
+
 from ..utils.hrms_plugin import get_auth_token, get_graphql_response
 from ..db.mongodb_utils import DatabaseConnector, Collections
 from ..crud.employees import create_employee, edit_employee
@@ -7,8 +8,10 @@ from ..utils.hrms_plugin import USERS_LIST, SKILL_LIST, TECHONOLOGY_LIST
 from .coc import add_coc, map_skill_with_coc
 from ..crud.employees import create_employee
 from ..models.employees import UpdateEmployee, Employee
+from ..utils.logger import Logger
 
 db_connector = DatabaseConnector()
+logger = Logger()
 
 
 def insert_employee_into_database(employee) -> None:
@@ -122,6 +125,8 @@ def sync_hrms_with_database():
     users_response = get_graphql_response(USERS_LIST, hrms_token)
     users_list = users_response["data"]["employeeSkillDetails"]["Employeelist"]
 
+    logger.info("HRMS data successfully fetched.")
+
     pm_list = []
     pmo_list = []
     users_in_hrms = []
@@ -134,3 +139,5 @@ def sync_hrms_with_database():
     add_coc(pm_list, "PM")
     add_coc(pmo_list, "PMO")
     check_employee_in_database(users_list)
+
+    logger.info("HRMS sync successfully done.")
