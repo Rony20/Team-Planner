@@ -7,10 +7,11 @@ from typing import List
 
 from ..db.mongodb_utils import DatabaseConnector, Collections
 from ..utils.jira_plugin import get_project_keys, get_all_jira_projects
-from ..crud.projects import createProject
+from ..crud.projects import create_project
 from ..crud.dropdowns import get_pm_list
 
 db_connector = DatabaseConnector()
+
 
 def get_pm_id(name):
     pm_list = get_pm_list()
@@ -79,7 +80,7 @@ def insert_project_into_database(project) -> None:
         'description': ""
     }
 
-    createProject(project_object)
+    create_project(project_object)
 
 
 def sync_jira_with_database() -> None:
@@ -95,5 +96,3 @@ def sync_jira_with_database() -> None:
 
         for project in list_of_jira_projects:
             insert_project_into_database(project)
-    else:
-        pass

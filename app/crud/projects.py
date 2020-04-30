@@ -16,9 +16,9 @@ from ..models.projects import (
 db_connector = DatabaseConnector()
 
 
-def createProject(project: Project) -> bool:
+def create_project(project: Project) -> bool:
     """
-    createProject method takes project object as an argument and creates a record in the database.
+    create_project method takes project object as an argument and creates a record in the database.
 
     :param project: An object having data members such as id, name, assignedPM,... etc
     :type project: Object, required
@@ -35,9 +35,9 @@ def createProject(project: Project) -> bool:
     return created_document.acknowledged
 
 
-def getAllProjectDetails() -> list:
+def get_all_project_details() -> list:
     """
-    getAllProjectDetails method returns all projects data present inside the database.
+    get_all_project_details method returns all projects data present inside the database.
 
     :return: Returns a list of project objects.
     :rtype: List
@@ -51,9 +51,9 @@ def getAllProjectDetails() -> list:
     return list_projects_to_be_send
 
 
-def getProjectByPid(pid: str) -> dict:
+def get_project_by_pid(pid: str) -> dict:
     """
-    getProjectByPid method returns a particular project whose id is specified in the arguments.
+    get_project_by_pid method returns a particular project whose id is specified in the arguments.
 
     :param pid: An string value representing unique project in the database.
     :type pid: str
@@ -69,9 +69,9 @@ def getProjectByPid(pid: str) -> dict:
     return project_with_given_pid
 
 
-def getProjectByProjectName(project_name: str) -> list:
+def get_project_by_name(project_name: str) -> list:
     """
-    getProjectByProjectName returns a list of projects whose name is specified in the arguments.
+    get_project_by_name returns a list of projects whose name is specified in the arguments.
 
     :param project_name: A string value represeting name of the project in the database.
     :type project_name: str
@@ -91,12 +91,12 @@ def getProjectByProjectName(project_name: str) -> list:
         return list_project
 
 
-def updateProjectDetailsPmo(UpdateDetailsObj: ProjectUpdationByPmo, pid: str) -> dict:
+def update_project_details_pmo(update_details_obj: ProjectUpdationByPmo, pid: str) -> dict:
     """
-    updateProjectDetailsPmo method takes updation required in the project as object in argument and returns int.
+    update_project_details_pmo method takes updation required in the project as object in argument and returns int.
 
-    :param UpdateDetailsObj: An object having data members such as id, name, assignedPM,... etc
-    :type UpdateDetailsObj: ProjectUpdationByPmo
+    :param update_details_obj: An object having data members such as id, name, assignedPM,... etc
+    :type update_details_obj: ProjectUpdationByPmo
     :param pid: An string value representing unique project in the database.
     :type pid: str
     :raises HTTPException: If no project is found of the name passed, then Error-404 is returned.
@@ -110,30 +110,30 @@ def updateProjectDetailsPmo(UpdateDetailsObj: ProjectUpdationByPmo, pid: str) ->
         raise HTTPException(404, "Project not found")
 
     my_query = {"project_id": pid}
-    UpdateDetailsObj = UpdateDetailsObj.dict(exclude_unset=True)
-    UpdateDetailsObj = jsonable_encoder(UpdateDetailsObj)
-    
+    update_details_obj = update_details_obj.dict(exclude_unset=True)
+    update_details_obj = jsonable_encoder(update_details_obj)
+
     updated_obj = db_connector.collection(Collections.PROJECTS).find_one_and_update(
         my_query,
         {
-            "$set": UpdateDetailsObj
+            "$set": update_details_obj
         },
         projection={"_id": False,
-        "allocated_employees": False,
-        "description": False,
-        "status": False
-        },
+                    "allocated_employees": False,
+                    "description": False,
+                    "status": False
+                    },
         return_document=ReturnDocument.AFTER
     )
     return updated_obj
 
 
-def updateProjectDetailsPm(UpdateDetailsObj: ProjectUpdationByPm, pid: str) -> dict:
+def update_project_details_pm(update_details_obj: ProjectUpdationByPm, pid: str) -> dict:
     """
-    updateProjectDetailsPm method takes updation required in the project as object in argument and returns int.
+    update_project_details_pm method takes updation required in the project as object in argument and returns int.
 
-    :param UpdateDetailsObj: An object having data members such as id, name, assignedPM,... etc
-    :type UpdateDetailsObj: ProjectUpdationByPm
+    :param update_details_obj: An object having data members such as id, name, assignedPM,... etc
+    :type update_details_obj: ProjectUpdationByPm
     :param pid: An string value representing unique project in the database.
     :type pid: str
     :raises HTTPException: If no project is found of the name passed, then Error-404 is returned.
@@ -147,12 +147,12 @@ def updateProjectDetailsPm(UpdateDetailsObj: ProjectUpdationByPm, pid: str) -> d
     if project_at_pid == None:
         raise HTTPException(404, "Project not found")
 
-    UpdateDetailsObj = UpdateDetailsObj.dict(exclude_unset=True)
-    UpdateDetailsObj = jsonable_encoder(UpdateDetailsObj)
+    update_details_obj = update_details_obj.dict(exclude_unset=True)
+    update_details_obj = jsonable_encoder(update_details_obj)
     update_information_object = db_connector.collection(Collections.PROJECTS).find_one_and_update(
         {"project_id": pid},
         {
-            "$set": UpdateDetailsObj
+            "$set": update_details_obj
         },
         projection={"_id": False},
         return_document=ReturnDocument.AFTER
@@ -160,9 +160,9 @@ def updateProjectDetailsPm(UpdateDetailsObj: ProjectUpdationByPm, pid: str) -> d
     return update_information_object
 
 
-def createUpdateTeam(req_obj: Dict, pid: str) -> dict:
+def create_update_team(req_obj: Dict, pid: str) -> dict:
     """
-    createUpdateTeam method creates team of employees for a particular project 
+    create_update_team method creates team of employees for a particular project 
 
     :param req_obj: contains list of integers representing employees
     :type req_obj: Dict
@@ -171,7 +171,7 @@ def createUpdateTeam(req_obj: Dict, pid: str) -> dict:
     :return: Returns a updated document from database otherwise returns None.
     :rtype: dict
     """
-    
+
     allocated_employees = req_obj["allocated_employees"]
     my_query = {"project_id": pid}
     for employee in allocated_employees:

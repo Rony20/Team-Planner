@@ -2,13 +2,13 @@ from fastapi import APIRouter
 from typing import List, Dict
 
 from ...crud.projects import (
-    updateProjectDetailsPmo,
-    updateProjectDetailsPm,
-    getProjectByProjectName,
-    getProjectByPid,
-    createProject,
-    getAllProjectDetails,
-    createUpdateTeam
+    update_project_details_pmo,
+    update_project_details_pm,
+    get_project_by_name,
+    get_project_by_pid,
+    create_project,
+    get_all_project_details,
+    create_update_team
 )
 
 from ...models.projects import (
@@ -24,16 +24,16 @@ router = APIRouter()
     api which create new project
 """
 @router.post("/api/create-project/")
-def createProjectApi(project: Project) -> bool:
-    return createProject(project)
+def create_project_api(project: Project) -> bool:
+    return create_project(project)
 
 
 """
     api which will get all projects information
 """
 @router.get("/api/all-project-details")
-def getAllProjectDetailsApi():
-    return getAllProjectDetails()
+def get_all_project_details_api():
+    return get_all_project_details()
 
 
 """
@@ -41,8 +41,8 @@ def getAllProjectDetailsApi():
     whose pid is passed in path parameter
 """
 @router.get("/api/projectdata-by-pid/{pid}")
-def getProjectByPidApi(pid: str):
-    return getProjectByPid(pid)
+def get_project_by_pid_api(pid: str):
+    return get_project_by_pid(pid)
 
 
 """
@@ -50,25 +50,26 @@ def getProjectByPidApi(pid: str):
     information whose name is passed in path parameter
 """
 @router.get("/api/projectdata-by-projectname/{project_name}")
-def getProjectByProjectNameApi(project_name: str):
-    return getProjectByProjectName(project_name)
+def get_project_by_name_api(project_name: str):
+    return get_project_by_name(project_name)
 
 
 """
     api which will update project details by pmo
 """
 @router.patch("/api/update-project-details-pmo/{pid}")
-def updateProjectDetailsPmoApi(UpdateDetailsObj: ProjectUpdationByPmo, pid: str) -> int:
-    return updateProjectDetailsPmo(UpdateDetailsObj, pid)
+def update_project_details_pmo_api(update_details_obj: ProjectUpdationByPmo, pid: str) -> int:
+    return update_project_details_pmo(update_details_obj, pid)
 
 
 """
     api which will update project details by pm
 """
 @router.patch("/api/update-project-details-pm/{pid}")
-def updateProjectDetailsPmApi(UpdateDetailsObj: ProjectUpdationByPm, pid: str) -> int:
-    return updateProjectDetailsPm(UpdateDetailsObj, pid)
+def update_project_details_pm_api(update_details_obj: ProjectUpdationByPm, pid: str) -> int:
+    return update_project_details_pm(update_details_obj, pid)
+
 
 @router.patch("/api/create-update-team/{pid}")
-def createUpdateTeamApi(req_obj: Dict, pid:str):
-    return createUpdateTeam(req_obj, pid)
+def create_update_team_api(req_obj: Dict, pid: str):
+    return create_update_team(req_obj, pid)
