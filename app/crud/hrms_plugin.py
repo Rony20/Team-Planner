@@ -119,11 +119,11 @@ def sync_hrms_with_database():
 
     technology_list = get_graphql_response(TECHONOLOGY_LIST, hrms_token)
     skills_list = skills_list + technology_list["data"]["allTechnology"]
-
+    
     add_coc(skills_list, "skills")
 
     users_response = get_graphql_response(USERS_LIST, hrms_token)
-    users_list = users_response["data"]["employeeSkillDetails"]["Employeelist"]
+    users_list = users_response["data"]["employeeSkillDetails"]["EmployeeSkillsList"]
 
     logger.info("HRMS data successfully fetched.")
 

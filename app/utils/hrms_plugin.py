@@ -12,7 +12,7 @@ from ..core.config import HRMS_USER, ENCRYPTED_PASSWORD, LOGIN_URL, GRAPHQL_URL
 SKILL_LIST = "{\"query\":\"query{allSkill}\",\"variables\":{}}"
 DESIGNATION_LIST = "{\"query\":\"query{allDropdown(cocCode:\\\"12\\\") {code value}}\",\"variables\":{}}"
 TECHONOLOGY_LIST = "{\"query\":\"query{allTechnology}\",\"variables\":{}}"
-USERS_LIST = "{\"query\":\"query{\\nemployeeSkillDetails{\\n...on Employeelist{\\nEmployeelist\\n{empCode\\ndesignation\\nname\\nskill\\nprimaryTechnology\\nsecondaryTechnology\\n\\n}\\n\\n}\\n...on AuthInfoField{message}\\n\\n}\\n\\n}\",\"variables\":{}}"
+USERS_LIST = "{\"query\":\"query{\\nemployeeSkillDetails{\\n...on EmployeeSkillsList{\\nEmployeeSkillsList\\n{empCode\\ndesignation\\nname\\nemail\\nrole\\nskill\\nprimaryTechnology\\nsecondaryTechnology\\n\\n}\\n\\n}\\n...on AuthInfoField{message}\\n\\n}\\n\\n}\",\"variables\":{}}"
 
 logger = Logger()
 
