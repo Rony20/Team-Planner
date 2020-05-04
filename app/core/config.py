@@ -12,9 +12,9 @@ MONGODB_URI = (f"mongodb://{MONGO_CONTAINER}:{MONGO_PORT}/{DB_NAME}")
 
 # Jira credentials
 
-JIRA_URL = os.environ.get('JIRA_URL')
-JIRA_USER = os.environ.get('JIRA_USER')
-JIRA_PASSWORD = os.environ.get('JIRA_PASSWORD')
+JIRA_URL = os.getenv('JIRA_URL')
+JIRA_USER = os.getenv('JIRA_USER')
+JIRA_PASSWORD = os.getenv('JIRA_PASSWORD')
 
 # HRMS Credentials
 
