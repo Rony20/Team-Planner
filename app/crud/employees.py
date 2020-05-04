@@ -1,6 +1,6 @@
 from fastapi import APIRouter, FastAPI, Query, Path, HTTPException
 from pydantic import BaseModel, ValidationError, validator
-from pymongo import MongoClient
+from pymongo import MongoClient, ReturnDocument
 from fastapi.encoders import jsonable_encoder
 from typing import List, Dict
 
@@ -56,7 +56,7 @@ def edit_employee(employee_id: int, update_employee: UpdateEmployee) -> dict:
     my_query = {"employee_id": employee_id}
     new_values = update_employee.dict(exclude_unset=True)
 
-    if "current_projects" or "past_projects" in new_values:
+    if ("current_projects" or "past_projects") in new_values:
         changed_employee = db_connector.collection(
             Collections.EMPLOYEES).find_one_and_update(
             my_query,

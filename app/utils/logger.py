@@ -5,8 +5,10 @@ from enum import Enum
 
 from .singleton import Singleton
 from ..db.mongodb_utils import DatabaseConnector, Collections
+from ..models.log import Log, LogType
 
 db_connector = DatabaseConnector()
+
 
 class LogType(str, Enum):
     """Log type enumerations."""
@@ -22,21 +24,12 @@ class Logger(metaclass=Singleton):
     def __init__(self):
         """Initialize a new logger."""
         self._connector = db_connector
-        # TODO: use capped collection here
-        # self._connector.db.create_collection(Collections.LOGS, {
-        #     "capped": True,
-        #     "max": 1000
-        # })
+        self._level = LogType.INFO
 
     def update_level(self):
-        """Refresh logLevel from the database."""
-        settings = db_connector.collection(Collections.SETTINGS).find_one(
-            {}
-        )
-        try:
-            self._level = LogType(settings["logLevel"])
-        except TypeError:
-            self._level = LogType.INFO
+        """Refresh logLevel."""
+
+        self._level = LogType.INFO
 
     def info(self, message: str):
         """Log an information message.
