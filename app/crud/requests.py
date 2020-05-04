@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta
 from fastapi import FastAPI, HTTPException, Query
 from pydantic import BaseModel, ValidationError, validator
 from pymongo import MongoClient, ReturnDocument
@@ -52,7 +53,7 @@ def get_all_requests() -> list:
     return all_requests
 
 
-def get_requests_by_pm(pm_id: int, week_start: str = Query(..., regex=date_regex) , week_end: str = Query(..., regex=date_regex)) -> list:
+def get_requests_by_pm(pm_id: int, week_start: str = Query(..., regex=date_regex), week_end: str = Query(..., regex=date_regex)) -> list:
     """
     get_requests_by_pm method takes id of pm as argument and return
     a list of requests made by pm in all projects.
@@ -96,3 +97,34 @@ def approve_reject_request_by_pmo(request_id: str, updateRequest: UpdateRequestB
             return_document=ReturnDocument.AFTER
     )
     return request_document
+
+
+def get_projects_with_remaining_requests(pm_id: int) -> list:
+    requested_projects_of_pm = []
+    all_projects_of_pm = []
+
+
+    today = datetime.today()
+    start = (today - timedelta(days=today.weekday())).
+    end = start + timedelta(days=6)
+    week_start = start.strftime('%d-%m-%Y')
+    week_end = end.strftime('%d-%m-%Y')
+
+    requested_projects = db_connector.collection(Collections.REQUESTS).find({
+        "pm_id": pm_id, "requested_week": [week_start, week_end]
+    }, {"_id": 0, "project_id": 1})
+
+    for project in requested_projects:
+        if project["project_id"] not in requested_projects_of_pm:
+            requested_projects_of_pm.append(project["[project_id"])
+
+    all_projects = db_connector.collection(Collections.PROJECTS).find({
+        "assigned_pm": pm_id, {"_id": 0, "project_id": 1}
+    })
+
+    for project in all_projects:
+        all_projects_of_pm.append(project["project_id"])
+
+    return list(set(all_projects_of_pm)-set(requested_projects_of_pm))
+
+

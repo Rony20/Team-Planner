@@ -12,6 +12,7 @@ from ..models.projects import (
     ProjectUpdationByPm,
     AllocationForProject
 )
+from .requests import get_projects_with_remaining_requests
 
 db_connector = DatabaseConnector()
 
@@ -112,17 +113,17 @@ def updateProjectDetailsPmo(UpdateDetailsObj: ProjectUpdationByPmo, pid: str) ->
     my_query = {"project_id": pid}
     UpdateDetailsObj = UpdateDetailsObj.dict(exclude_unset=True)
     UpdateDetailsObj = jsonable_encoder(UpdateDetailsObj)
-    
+
     updated_obj = db_connector.collection(Collections.PROJECTS).find_one_and_update(
         my_query,
         {
             "$set": UpdateDetailsObj
         },
         projection={"_id": False,
-        "allocated_employees": False,
-        "description": False,
-        "status": False
-        },
+                    "allocated_employees": False,
+                    "description": False,
+                    "status": False
+                    },
         return_document=ReturnDocument.AFTER
     )
     return updated_obj
@@ -171,7 +172,7 @@ def createUpdateTeam(req_obj: Dict, pid: str) -> dict:
     :return: Returns a updated document from database otherwise returns None.
     :rtype: dict
     """
-    
+
     allocated_employees = req_obj["allocated_employees"]
     my_query = {"project_id": pid}
     for employee in allocated_employees:
@@ -199,3 +200,28 @@ def createUpdateTeam(req_obj: Dict, pid: str) -> dict:
             return_document=ReturnDocument.AFTER
         )
     return updated_obj
+
+
+def get_project_team(pm_id: int) -> dict:
+
+    today = datetime.today()
+    start = (today - timedelta(days=today.weekday())).
+    end = start + timedelta(days=6)
+    week_start = start.strftime('%d-%m-%Y')
+    week_end = end.strftime('%d-%m-%Y')
+
+    project_list = get_projects_with_remaining_requests(
+        pm_id, week_start, week_end)
+    project_team = {}
+    response = db_connector.collection(Collections.PROJECTS).find(
+        {"assigned_pm": pm_id}, {"_id": 0, "project_id": 1, "allocated_employees.id": 1})
+
+    for project in project_list:
+        response = db_connector.collection(Collections.PROJECTS).find_one(
+            {"project_id": project}, {"_id": 0, "allocated_employees.id": 1})
+        emplist = []
+        for employee in response["allocated_employees"]:
+            emplist.append(employee["id"])
+        project_team[project] = emplist
+
+    return project_team
