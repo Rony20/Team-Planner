@@ -7,8 +7,10 @@ from ..utils.hrms_plugin import USERS_LIST, SKILL_LIST, TECHONOLOGY_LIST
 from .coc import add_coc, map_skill_with_coc
 from ..crud.employees import create_employee
 from ..models.employees import UpdateEmployee, Employee
+from ..utils.logger import Logger
 
 db_connector = DatabaseConnector()
+logger = Logger()
 
 
 def insert_employee_into_database(employee) -> None:
@@ -116,11 +118,13 @@ def sync_hrms_with_database():
 
     technology_list = get_graphql_response(TECHONOLOGY_LIST, hrms_token)
     skills_list = skills_list + technology_list["data"]["allTechnology"]
-
+    
     add_coc(skills_list, "skills")
 
     users_response = get_graphql_response(USERS_LIST, hrms_token)
-    users_list = users_response["data"]["employeeSkillDetails"]["Employeelist"]
+    users_list = users_response["data"]["employeeSkillDetails"]["EmployeeSkillsList"]
+
+    logger.info("HRMS data successfully fetched.")
 
     pm_list = []
     pmo_list = []
@@ -134,3 +138,5 @@ def sync_hrms_with_database():
     add_coc(pm_list, "PM")
     add_coc(pmo_list, "PMO")
     check_employee_in_database(users_list)
+
+    logger.info("HRMS sync successfully done.")

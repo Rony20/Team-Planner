@@ -1,6 +1,16 @@
 from ..db.mongodb_utils import DatabaseConnector, Collections
+from enum import Enum
+
 
 db_connector = DatabaseConnector()
+
+
+class CocType(str, Enum):
+    """Enumerations for COC."""
+
+    skills = "skill"
+    PM = "Project Manager/Technical Lead"
+    PMO = "PMO / Project Management Officer"
 
 
 def add_coc(list_of_data, data_type) -> None:
@@ -11,15 +21,11 @@ def add_coc(list_of_data, data_type) -> None:
     :param list_of_data: list describing the data whose COC is to be made.
     :type list_of_data: list
     """
-    if data_type == "skills":
-        coc_desc = "skill"
-    elif data_type == "PM":
-        coc_desc = "Project Manager/Technical Lead"
-    elif data_type == "PMO":
-        coc_desc = "PMO / Project Management Officer"
 
     last_index = 0
     data_in_db = []
+    coc_desc = CocType[data_type]
+
     cursor = db_connector.collection(
         Collections.COC).find({"coc_desc": coc_desc}, {"_id": 0, "coc_desc": 0, "coc_code": 0, "code": 0})
     for coc_obj in cursor:

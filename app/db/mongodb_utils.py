@@ -15,6 +15,7 @@ class Collections(str, Enum):
     EMPLOYEES = "employees"
     COC = "COC"
     REQUESTS = "requests"
+    LOGS = "logs"
 
 class DatabaseConnector(metaclass=Singleton):
     """This is database connection class"""
