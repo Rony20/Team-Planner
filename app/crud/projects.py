@@ -167,7 +167,7 @@ def createUpdateTeam(req_obj: Dict, pid: str) -> dict:
 
     :param req_obj: contains list of integers representing employees
     :type req_obj: Dict
-    :param pid: An string value representing unique project in the database.
+    :param pid: A string value representing unique project in the database.
     :type pid: str
     :return: Returns a updated document from database otherwise returns None.
     :rtype: dict
@@ -203,9 +203,19 @@ def createUpdateTeam(req_obj: Dict, pid: str) -> dict:
 
 
 def get_project_team(pm_id: int) -> dict:
+    """
+    get_project_team method takes pm_id as argument and returns the team
+    key-value pairs of project-id and assigned-employees for all projects
+    under a particular pm.
+
+    :param pm_id: A integer value representing unique pm in the database.
+    :type pm_id: int
+    :return: dict with key-value pairs of project-id and assigned employees.
+    :rtype: dict
+    """
 
     today = datetime.today()
-    start = (today - timedelta(days=today.weekday())).
+    start = (today - timedelta(days=today.weekday()))
     end = start + timedelta(days=6)
     week_start = start.strftime('%d-%m-%Y')
     week_end = end.strftime('%d-%m-%Y')
