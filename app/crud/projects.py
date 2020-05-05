@@ -215,7 +215,7 @@ def get_project_team(pm_id: int) -> dict:
     """
 
     today = datetime.today()
-    start = (today - timedelta(days=today.weekday()))
+    start = (today - timedelta(days=today.weekday())) + timedelta(days=7)
     end = start + timedelta(days=6)
     week_start = start.strftime('%d-%m-%Y')
     week_end = end.strftime('%d-%m-%Y')

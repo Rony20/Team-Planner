@@ -3,7 +3,8 @@ from ...crud.requests import(
     make_new_request,
     get_requests_by_pm,
     get_all_requests,
-    approve_reject_request_by_pmo
+    approve_reject_request_by_pmo,
+    check_for_conflicts
 )
 
 from ...models.requests import (
@@ -40,3 +41,8 @@ def approve_reject_request_by_pmo_api(request_id: str, updateRequest: UpdateRequ
 @router.get("/get-projects-with-remaining-requests-by-pm/{pm_id}")
 def get_projects_with_remaining_requests_api(pm_id: int):
     return get_projects_with_remaining_requests(pm_id)
+
+
+@router.get("/check-conflicts/{employee_id}")
+def get_conflict_status_for_employee_api(employee_id: int):
+    return check_for_conflicts(employee_id)

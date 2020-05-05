@@ -4,7 +4,6 @@ from pydantic import BaseModel, ValidationError, validator
 from pymongo import MongoClient, ReturnDocument
 from fastapi.encoders import jsonable_encoder
 from typing import List, Dict
-from datetime import *
 from ..db.mongodb_utils import DatabaseConnector, Collections
 from ..models.requests import (
     Request,
@@ -31,6 +30,15 @@ def make_new_request(request: Request) -> bool:
     :return: result of the operation in boolean.
     :rtype: bool
     """
+
+    pm_in_request = request.pm_id
+    pm_in_db = db_connector.collection(Collections.PROJECTS).find_one(
+        {"project_id": request.project_id}, {"_id": 0, "assigned_pm": 1})
+
+    if pm_in_request is not pm_in_db["assigned_pm"]:
+        raise HTTPException(
+            status_code=403, detail="Invalid: Request can be made by PM of the project only.")
+
     request_object = dict(request)
     if str(request_object["employee_id"]) not in request_object["request_id"].split("-")[1]:
         raise HTTPException(status_code=422,
@@ -41,8 +49,8 @@ def make_new_request(request: Request) -> bool:
 
     request_in_db = db_connector.collection(Collections.REQUESTS).find_one(
         {"request_id": request_object["request_id"]}, {"_id": 0})
-    
-    if request_in_db is None:
+
+    if (request_in_db is None):
         request_document = db_connector.collection(
             Collections.REQUESTS).insert_one(request_object)
         return request_document.acknowledged
@@ -112,7 +120,7 @@ def approve_reject_request_by_pmo(request_id: str, update_request: UpdateRequest
     return request_document
 
 
-def get_projects_with_remaining_requests(pm_id: int) -> list:
+def get_projects_with_remaining_requests(pm_id: int) -> dict:
     """
     get_projects_with_remaining_requests method takes pm_id as argument and
     returns a list of projects under a particular pm whose requests are to remaining to be made.
@@ -126,7 +134,7 @@ def get_projects_with_remaining_requests(pm_id: int) -> list:
     all_projects_of_pm = []
 
     today = datetime.today()
-    start = (today - timedelta(days=today.weekday()))
+    start = (today - timedelta(days=today.weekday())) + timedelta(days=7)
     end = start + timedelta(days=6)
     week_start = start.strftime('%d-%m-%Y')
     week_end = end.strftime('%d-%m-%Y')
@@ -137,7 +145,7 @@ def get_projects_with_remaining_requests(pm_id: int) -> list:
 
     for project in requested_projects:
         if project["project_id"] not in requested_projects_of_pm:
-            requested_projects_of_pm.append(project["[project_id"])
+            requested_projects_of_pm.append(project["project_id"])
 
     all_projects = db_connector.collection(Collections.PROJECTS).find({
         "assigned_pm": pm_id}, {"_id": 0, "project_id": 1}
@@ -145,17 +153,45 @@ def get_projects_with_remaining_requests(pm_id: int) -> list:
 
     for project in all_projects:
         all_projects_of_pm.append(project["project_id"])
+    remaining_projects_list = list(
+        set(all_projects_of_pm)-set(requested_projects_of_pm))
+    remaining_projects_object = {}
+    for project in remaining_projects_list:
+        employees = db_connector.collection(Collections.PROJECTS).find_one(
+            {"project_id": project}, {"_id": 0, "allocated_employees": 1})
+        remaining_projects_object.update({project: employees})
+    return remaining_projects_object
 
-    return list(set(all_projects_of_pm)-set(requested_projects_of_pm))
 
+def check_for_conflicts(employee_id: int) -> dict:
+    """
+    check_for_conflicts method takes employee_id as argument and
+    checks if there is a request for him/het in the DB.
 
-def check_for_conflicts(employee_id: int) -> bool:
-    request = db_connector.collection(Collections.REQUESTS).find_one(
-        {"requested_week": [week_start, week_end], "employee_id": employee_id}, {"_id": 0, "requested_hours": 1})
-    if request:
-        return True
+    :param employee_id: A integer value representing unique employee in the database.
+    :type employee_id: int
+    :return: dict value representing all the projects and their requested hours if there is request in the DB.
+    :rtype: dict
+    """
+
+    today = datetime.today()
+    start = (today - timedelta(days=today.weekday())) + timedelta(days=7)
+    end = start + timedelta(days=6)
+    week_start = start.strftime('%d-%m-%Y')
+    week_end = end.strftime('%d-%m-%Y')
+
+    employee_requests = db_connector.collection(Collections.REQUESTS).find(
+        {"requested_week": [week_start, week_end], "employee_id": employee_id}, {"_id": 0, "requested_hours": 1, "project_id": 1})
+
+    if employee_requests is not None:
+        requests_in_db = {}
+        for request in employee_requests:
+            requests_in_db.update(
+                {request["project_id"]: request["requested_hours"]})
+            print(request)
+        return requests_in_db
     else:
-        return False
+        return{"message": f"No requests {employee_id}"}
 
 
 def update_request_by_pm(request_id: str, update_request: Request) -> dict:

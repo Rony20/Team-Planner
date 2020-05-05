@@ -34,13 +34,13 @@ def get_graphql_response(query, token):
             raise HTTPException(
                 status_code=500, detail="Token Mismatch detected ! Couldn't connect to HRMS.")
     except requests.exceptions.ConnectionError as ex:
-        logger.error(ex)
+        logger.error(repr(ex))
         raise HTTPException(status_code=502, detail="Connection Error !")
     except requests.exceptions.Timeout as ex:
-        logger.error(ex)
+        logger.error(repr(ex))
         raise HTTPException(status_code=408, detail="Request Timeout !")
     except requests.exceptions.TooManyRedirects as ex:
-        logger.error(ex)
+        logger.error(repr(ex))
         raise HTTPException(status_code=310, detail="Too many redirects !")
     except Exception as ex:
         logger.error(repr(ex))
@@ -68,16 +68,16 @@ def get_auth_token():
             raise HTTPException(
                 status_code=500, detail="Invalid Credentials ! Couldn't connect to HRMS.")
     except requests.exceptions.ConnectionError as ex:
-        logger.error(ex)
+        logger.error(repr(ex))
         raise HTTPException(status_code=502, detail="Connection Error !")
     except requests.exceptions.Timeout as ex:
-        logger.error(ex)
+        logger.error(repr(ex))
         raise HTTPException(status_code=408, detail="Request Timeout !")
     except requests.exceptions.TooManyRedirects as ex:
-        logger.error(ex)
+        logger.error(repr(ex))
         raise HTTPException(status_code=310, detail="Too many redirects !")
     except requests.exceptions.RequestException as ex:
-        logger.error(ex)
+        logger.error(repr(ex))
         raise HTTPException(status_code=300, detail=ex)
     else:
         auth_data = response.json()
