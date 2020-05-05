@@ -12,6 +12,8 @@ from ...models.requests import (
     UpdateRequestByPM
 )
 
+from ...crud.projects import get_projects_with_remaining_requests
+
 router = APIRouter()
 date_regex = r"(0[1-9]|[12][0-9]|3[01])[-](0[1-9]|1[012])[-]\d{4}"
 
@@ -34,3 +36,7 @@ def get_requests_by_pm_api(pm_id: int, week_start: str = Query(..., regex=date_r
 @router.patch("/change-request-status/{request_id}")
 def approve_reject_request_by_pmo_api(request_id: str, updateRequest: UpdateRequestByPMO):
     return approve_reject_request_by_pmo(request_id, updateRequest)
+
+@router.get("/get-projects-with-remaining-requests-by-pm/{pm_id}")
+def get_projects_with_remaining_requests_api(pm_id: int):
+    return get_projects_with_remaining_requests(pm_id)
