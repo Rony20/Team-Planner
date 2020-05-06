@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+from operator import add
 from fastapi import FastAPI, HTTPException, Query
 from pydantic import BaseModel, ValidationError, validator
 from pymongo import MongoClient, ReturnDocument
@@ -13,6 +14,7 @@ from ..models.requests import (
 
 db_connector = DatabaseConnector()
 date_regex = r"(0[1-9]|[12][0-9]|3[01])[-](0[1-9]|1[012])[-]\d{4}"
+week_days = 7
 
 
 def make_new_request(request: Request) -> bool:
@@ -180,18 +182,28 @@ def check_for_conflicts(employee_id: int) -> dict:
     week_start = start.strftime('%d-%m-%Y')
     week_end = end.strftime('%d-%m-%Y')
 
-    employee_requests = db_connector.collection(Collections.REQUESTS).find(
-        {"requested_week": [week_start, week_end], "employee_id": employee_id}, {"_id": 0, "requested_hours": 1, "project_id": 1})
-
-    if employee_requests is not None:
+    requests_count = db_connector.collection(Collections.REQUESTS).count(
+        {"requested_week": [week_start, week_end], "employee_id": employee_id})
+    if requests_count:
+        total_requested_hours = [0] * week_days
         requests_in_db = {}
+
+        employee_requests = db_connector.collection(Collections.REQUESTS).find({"requested_week": [
+            week_start, week_end], "employee_id": employee_id}, {"_id": 0, "project_id": 1, "requested_hours": 1})
+
         for request in employee_requests:
+            total_requested_hours = list(
+                map(add, total_requested_hours, request["requested_hours"]))
             requests_in_db.update(
                 {request["project_id"]: request["requested_hours"]})
-            print(request)
-        return requests_in_db
+
+        if len([i for i in total_requested_hours if i > 8]) > 0:
+            requests_in_db.update({"conflicted": True})
+            return requests_in_db
+        else:
+            return{"conflicted": False}
     else:
-        return{"message": f"No requests {employee_id}"}
+        return{"conflicted": False}
 
 
 def update_request_by_pm(request_id: str, update_request: Request) -> dict:

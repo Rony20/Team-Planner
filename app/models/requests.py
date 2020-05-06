@@ -27,7 +27,7 @@ class Request(BaseModel):
     requested_week: List[str]
     requested_hours: List[int]
     priority: str
-    status = "pending"
+    request_status = "pending"
     request_date: str
     pmo_id = 0
 
@@ -83,8 +83,8 @@ class UpdateRequestByPMO(BaseModel):
     :type BaseModel: class
     """
     pmo_id: int
-    status: str
-    @validator("status")
+    request_status: str
+    @validator("request_status")
     def check_status(cls, value):
         if value not in ["pending", "declined", "approved"]:
             raise ValueError(
