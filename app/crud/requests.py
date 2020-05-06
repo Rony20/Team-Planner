@@ -159,9 +159,13 @@ def get_projects_with_remaining_requests(pm_id: int) -> dict:
         set(all_projects_of_pm)-set(requested_projects_of_pm))
     remaining_projects_object = {}
     for project in remaining_projects_list:
+        employee_coc = []
         employees = db_connector.collection(Collections.PROJECTS).find_one(
             {"project_id": project}, {"_id": 0, "allocated_employees": 1})
-        remaining_projects_object.update({project: employees})
+        employees = employees["allocated_employees"]
+        for employee in employees:
+            employee_coc.append(employee["id"])
+        remaining_projects_object.update({project: employee_coc})
     return remaining_projects_object
 
 
