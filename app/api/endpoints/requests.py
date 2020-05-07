@@ -20,8 +20,8 @@ date_regex = r"(0[1-9]|[12][0-9]|3[01])[-](0[1-9]|1[012])[-]\d{4}"
 
 
 @router.post("/make-new-request")
-def make_new_request_api(request: Request) -> bool:
-    return make_new_request(request)
+def make_new_request_api(request: Request, conflicted: bool) -> bool:
+    return make_new_request(request, conflicted)
 
 
 @router.get("/get-all-requests")
@@ -44,5 +44,5 @@ def get_projects_with_remaining_requests_api(pm_id: int):
 
 
 @router.get("/check-conflicts/{employee_id}")
-def get_conflict_status_for_employee_api(employee_id: int):
-    return check_for_conflicts(employee_id)
+def get_conflict_status_for_employee_api(employee_id: int, pm_id: int):
+    return check_for_conflicts(employee_id, pm_id)

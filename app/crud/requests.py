@@ -17,7 +17,7 @@ date_regex = r"(0[1-9]|[12][0-9]|3[01])[-](0[1-9]|1[012])[-]\d{4}"
 week_days = 7
 
 
-def make_new_request(request: Request) -> bool:
+def make_new_request(request: Request, conflicted: bool) -> bool:
     """
     make_new_request method takes request object as argument and creates
     a new request in the database. Only PM can access this method while
@@ -51,6 +51,11 @@ def make_new_request(request: Request) -> bool:
 
     request_in_db = db_connector.collection(Collections.REQUESTS).find_one(
         {"request_id": request_object["request_id"]}, {"_id": 0})
+
+    if conflicted:
+        request_object.update({"request_status": "conflicted"})
+        db_connector.collection(Collections.REQUESTS).update_many(
+            {"employee_id": request_object["employee_id"]}, {"$set": {"request_status": "conflicted"}})
 
     if (request_in_db is None):
         request_document = db_connector.collection(
@@ -169,7 +174,7 @@ def get_projects_with_remaining_requests(pm_id: int) -> dict:
     return remaining_projects_object
 
 
-def check_for_conflicts(employee_id: int) -> dict:
+def check_for_conflicts(employee_id: int, pm_id: int) -> dict:
     """
     check_for_conflicts method takes employee_id as argument and
     checks if there is a request for him/het in the DB.
@@ -193,14 +198,14 @@ def check_for_conflicts(employee_id: int) -> dict:
         requests_in_db = {}
 
         employee_requests = db_connector.collection(Collections.REQUESTS).find({"requested_week": [
-            week_start, week_end], "employee_id": employee_id}, {"_id": 0, "project_id": 1, "requested_hours": 1})
+            week_start, week_end], "employee_id": employee_id}, {"_id": 0, "project_id": 1, "requested_hours": 1, "pm_id": 1})
 
         for request in employee_requests:
             total_requested_hours = list(
                 map(add, total_requested_hours, request["requested_hours"]))
-            requests_in_db.update(
-                {request["project_id"]: request["requested_hours"]})
-
+            if request["pm_id"] != pm_id:
+                requests_in_db.update(
+                    {request["project_id"]: request["requested_hours"]})
         if len([i for i in total_requested_hours if i > 8]) > 0:
             requests_in_db.update({"conflicted": True})
             return requests_in_db
