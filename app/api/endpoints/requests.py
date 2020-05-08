@@ -35,8 +35,9 @@ def get_requests_by_pm_api(pm_id: int, week_start: str = Query(..., regex=date_r
 
 
 @router.patch("/change-request-status/{request_id}")
-def approve_reject_request_by_pmo_api(request_id: str, updateRequest: UpdateRequestByPMO):
-    return approve_reject_request_by_pmo(request_id, updateRequest)
+def approve_reject_request_by_pmo_api(request_id: str, update_request: UpdateRequestByPMO):
+    return approve_reject_request_by_pmo(request_id, update_request)
+
 
 @router.get("/get-projects-with-remaining-requests-by-pm/{pm_id}")
 def get_projects_with_remaining_requests_api(pm_id: int):

@@ -1,20 +1,25 @@
 from datetime import datetime, timedelta
 from operator import add
+
 from fastapi import FastAPI, HTTPException, Query
 from pydantic import BaseModel, ValidationError, validator
 from pymongo import MongoClient, ReturnDocument
 from fastapi.encoders import jsonable_encoder
 from typing import List, Dict
+
 from ..db.mongodb_utils import DatabaseConnector, Collections
 from ..models.requests import (
     Request,
     UpdateRequestByPM,
     UpdateRequestByPMO
 )
+from ..utils.logger import Logger
+
 
 db_connector = DatabaseConnector()
 date_regex = r"(0[1-9]|[12][0-9]|3[01])[-](0[1-9]|1[012])[-]\d{4}"
 week_days = 7
+logger = Logger()
 
 
 def make_new_request(request: Request, conflicted: bool) -> bool:
@@ -60,6 +65,7 @@ def make_new_request(request: Request, conflicted: bool) -> bool:
     if (request_in_db is None):
         request_document = db_connector.collection(
             Collections.REQUESTS).insert_one(request_object)
+        logger.info(f"New request '{request.request_id}' is created.")
         return request_document.acknowledged
 
     elif (request_object["priority"] != request_in_db["priority"] or request_object["requested_hours"] != request_in_db["requested_hours"]):
@@ -206,9 +212,8 @@ def check_for_conflicts(employee_id: int, pm_id: int) -> dict:
             if request["pm_id"] != pm_id:
                 requests_in_db.update(
                     {request["project_id"]: request["requested_hours"]})
-        if len([i for i in total_requested_hours if i > 8]) > 0:
-            requests_in_db.update({"conflicted": True})
-            return requests_in_db
+                requests_in_db.update({"conflicted": True})
+                return requests_in_db
         else:
             return{"conflicted": False}
     else:
@@ -241,4 +246,5 @@ def update_request_by_pm(request_id: str, update_request: Request) -> dict:
             projection={"_id": False},
             return_document=ReturnDocument.AFTER
     )
+    logger.info(f"Request '{request_id} is updated in Database.")
     return request_document

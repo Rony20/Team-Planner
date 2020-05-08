@@ -13,8 +13,10 @@ from ..models.employees import (
     AllocationForProject,
     Availability
 )
+from ..utils.logger import Logger
 
 db_connector = DatabaseConnector()
+logger = Logger()
 
 
 def create_employee(employee: Employee) -> bool:
@@ -37,6 +39,8 @@ def create_employee(employee: Employee) -> bool:
             "availability": jsonable_encoder(employee.availability),
             "is_allocated": employee.is_allocated
         })
+    
+    logger.info(f"Employee '{employee.employee_id}' is added in database.")
     return response_object.acknowledged
 
 
@@ -74,6 +78,9 @@ def edit_employee(employee_id: int, update_employee: UpdateEmployee) -> dict:
             },
             projection={"_id": False},
             return_document=ReturnDocument.AFTER)
+    if changed_employee.acknowledged:
+        logger.info(f"Employee '{employee_id}' is updated in database.")
+
     return changed_employee
 
 

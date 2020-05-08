@@ -1,16 +1,22 @@
 import os
+
 from dotenv import load_dotenv
 
 load_dotenv('.env')
 
 # MongoDB Credentials
 
-MONGO_CONTAINER = os.getenv("MONGO_CONTAINER")
+MONGO_USER = os.getenv("MONGO_USER")
+MONGO_PASSWORD = os.getenv("MONGO_PASSWORD")
+MONGO_HOST = os.getenv("MONGO_HOST")
 MONGO_PORT = os.getenv("MONGO_PORT")
-DB_NAME = os.getenv("DB_NAME")
 
 # Fetching MongoDB credentials form environment file"
-MONGODB_URI = (f"mongodb://{MONGO_CONTAINER}:{MONGO_PORT}/{DB_NAME}")
+
+MONGODB_URI = (f"mongodb://{MONGO_USER}"
+               f":{os.environ['MONGO_PASSWORD']}@{os.environ['MONGO_HOST']}"
+               f":{os.environ['MONGO_PORT']}")
+
 # Jira credentials
 
 JIRA_URL = os.getenv('JIRA_URL')

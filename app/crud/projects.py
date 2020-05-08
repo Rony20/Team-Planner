@@ -13,8 +13,11 @@ from ..models.projects import (
     AllocationForProject
 )
 from .requests import get_projects_with_remaining_requests
+from ..utils.logger import Logger
+
 
 db_connector = DatabaseConnector()
+logger = Logger()
 
 
 def create_project(project: Project) -> bool:
@@ -33,6 +36,7 @@ def create_project(project: Project) -> bool:
             project["allocated_employees"])
     created_document = db_connector.collection(
         Collections.PROJECTS).insert_one(project)
+    logger.info(f"New project '{project.project_id}' added to Database.")
     return created_document.acknowledged
 
 
@@ -126,6 +130,9 @@ def update_project_details_pmo(update_details_obj: ProjectUpdationByPmo, pid: st
                     },
         return_document=ReturnDocument.AFTER
     )
+
+    if updated_obj.acknowledged:
+        logger.info(f"Project '{pid}' is updated in database.")
     return updated_obj
 
 
@@ -158,6 +165,8 @@ def update_project_details_pm(update_details_obj: ProjectUpdationByPm, pid: str)
         projection={"_id": False},
         return_document=ReturnDocument.AFTER
     )
+    if updated_obj.acknowledged:
+        logger.info(f"Project '{pid}' is updated in database.")
     return update_information_object
 
 

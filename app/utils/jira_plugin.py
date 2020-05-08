@@ -11,7 +11,9 @@ from ..core.config import (
     JIRA_USER,
     JIRA_PASSWORD
 )
+from ..utils.logger import Logger
 
+logger =Logger()
 
 def get_project_keys() -> List:
     """
@@ -21,16 +23,28 @@ def get_project_keys() -> List:
     :return: List of string keys for projects.
     :rtype: list
     """
-
-    response = requests.get(JIRA_URL, auth=(JIRA_USER, JIRA_PASSWORD))
-    project_keys = list()
-
-    projects = json.loads(response.text)
-
-    for project in projects:
-        project_keys.append(project['key'])
-
-    return project_keys
+    try:
+        response = requests.get(JIRA_URL, auth=(JIRA_USER, JIRA_PASSWORD))
+        if response.status_code == 500:
+            logger.error("Invalid Credentials ! Couldn't connect to JIRA.")
+    except requests.exceptions.ConnectionError as ex:
+        logger.error(repr(ex))
+        raise HTTPException(status_code=502, detail="Connection Error !")
+    except requests.exceptions.Timeout as ex:
+        logger.error(repr(ex))
+        raise HTTPException(status_code=408, detail="Request Timeout !")
+    except requests.exceptions.TooManyRedirects as ex:
+        logger.error(repr(ex))
+        raise HTTPException(status_code=310, detail="Too many redirects !")
+    except requests.exceptions.RequestException as ex:
+        logger.error(repr(ex))
+        raise HTTPException(status_code=300, detail=ex)
+    else:
+        project_keys = list()
+        projects = json.loads(response.text)
+        for project in projects:
+            project_keys.append(project['key'])
+        return project_keys
 
 
 def get_project_from_jira(key) -> Dict:
@@ -44,18 +58,33 @@ def get_project_from_jira(key) -> Dict:
      project_name, assigned_pm and status.
     :rtype: Dict
     """
+    try:
+        new_response = requests.get(
+            JIRA_URL+'/'+key, auth=(JIRA_USER, JIRA_PASSWORD))
+        if response.status_code == 500:
+            logger.error("Invalid Credentials ! Couldn't connect to JIRA.")
+    except requests.exceptions.ConnectionError as ex:
+        logger.error(repr(ex))
+        raise HTTPException(status_code=502, detail="Connection Error !")
+    except requests.exceptions.Timeout as ex:
+        logger.error(repr(ex))
+        raise HTTPException(status_code=408, detail="Request Timeout !")
+    except requests.exceptions.TooManyRedirects as ex:
+        logger.error(repr(ex))
+        raise HTTPException(status_code=310, detail="Too many redirects !")
+    except requests.exceptions.RequestException as ex:
+        logger.error(repr(ex))
+        raise HTTPException(status_code=300, detail=ex)
+    else:
+        project_details = json.loads(new_response.text)
 
-    new_response = requests.get(
-        JIRA_URL+'/'+key, auth=(JIRA_USER, JIRA_PASSWORD))
-    project_details = json.loads(new_response.text)
-
-    new_project_details = {
-        "project_id": project_details["key"],
-        "project_name": project_details["name"],
-        "assigned_pm": project_details["lead"]["displayName"],
-        "status": not project_details["archived"]
-    }
-    return new_project_details
+        new_project_details = {
+            "project_id": project_details["key"],
+            "project_name": project_details["name"],
+            "assigned_pm": project_details["lead"]["displayName"],
+            "status": not project_details["archived"]
+        }
+        return new_project_details
 
 
 def get_all_jira_projects(list_of_project_keys) -> List:

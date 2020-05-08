@@ -15,4 +15,4 @@ RUN pip install -r ./requirements.txt
 EXPOSE 8000
 
 # start server
-cmd ["python", "start_server.py"]
+ENTRYPOINT  [ "/bin/sh", "start.sh" ]

@@ -1,0 +1,46 @@
+version: '3'
+
+services:
+
+ mongodb:
+  image: mongo:latest
+  container_name: mongodb      
+  volumes:
+    - ./data/mongo-user:/docker-entrypoint-initdb.d:z  
+  environment: 
+    - MONGO_INITDB_ROOT_USERNAME=xyzabc123
+    - MONGO_INITDB_ROOT_PASSWORD=xyzabc123
+  restart: always
+  ports:
+    - 27017:27017
+
+ resource-planner-backend:
+  build: ../resource-planner-backend
+  container_name: resource-planner-backend
+  volumes:
+    - ../resource-planner-backend:/rpbackend
+  environment: 
+    - HRMS_USER=xyzabc123
+    - ENCRYPTED_PASS=xyzabc123
+    - LOGIN_URL=http://10.0.9.188:7000/login
+    - GRAPHQL_URL=http://10.0.9.188:7000/graphql
+    - JIRA_URL=http://10.0.1.78/rest/api/2/project
+    - JIRA_USER=jira.service
+    - JIRA_PASSWORD=ayzabc123
+    - MONGO_HOST=mongodb
+    - MONGO_PORT=27017
+    - MONGO_USER=xyzabc123
+    - MONGO_PASSWORD=xyzabc123
+    - DB_NAME=rp
+  ports:
+    - 8000:8000
+  links:
+    - mongodb
+
+ resource-planner-ui:
+  build: ../resource-planner-ui
+  container_name: resource-planner-ui
+  ports:
+   - 8080:8080
+  links:
+   - resource-planner-backend
