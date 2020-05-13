@@ -25,13 +25,13 @@ def make_new_request_api(request: Request, conflicted: bool) -> bool:
 
 
 @router.get("/get-all-requests")
-def get_all_requests_api() -> list:
-    return get_all_requests()
+def get_all_requests_api(week_start: str = Query(..., regex=date_regex), week_end: str = Query(..., regex=date_regex), request_status: str = None) -> list:
+    return get_all_requests(week_start, week_end, request_status)
 
 
 @router.get("/get-all-requests-by-pm/{pm_id}")
-def get_requests_by_pm_api(pm_id: int, week_start: str = Query(..., regex=date_regex), week_end: str = Query(..., regex=date_regex)):
-    return get_requests_by_pm(pm_id, week_start, week_end)
+def get_requests_by_pm_api(pm_id: int, week_start: str = Query(..., regex=date_regex), week_end: str = Query(..., regex=date_regex), request_status: str = None):
+    return get_requests_by_pm(pm_id, week_start, week_end, request_status)
 
 
 @router.patch("/change-request-status/{request_id}")
