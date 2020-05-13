@@ -19,7 +19,8 @@ from ...models.employees import (
     PastProjects,
     CurrentProjects
 )
-from ...models.auth import User, UserRoles
+from ...models.auth import User
+from ...utils.role_manager import UserRoles
 
 app = FastAPI()
 router = APIRouter()

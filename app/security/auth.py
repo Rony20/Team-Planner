@@ -8,38 +8,14 @@ from fastapi.security import OAuth2PasswordBearer
 from ..utils.ad_connection import ADConnector
 from ..db.mongodb_utils import DatabaseConnector, Collections
 from ..core.config import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRES_MINUTES
-from ..models.auth import User, TokenData, UserRoles
+from ..models.auth import User, TokenData
+from ..utils.role_manager import UserRoles, get_user_role
 
 
 ad_connector = ADConnector()
 db_connector = DatabaseConnector()
 expires_delta = ACCESS_TOKEN_EXPIRES_MINUTES
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/login")
-
-
-def get_user_role(employee_id) -> str:
-    """
-    :param employee_id: unique id of employee.
-    :type employee_id: int
-    :return: role of employee based on his designation.
-    :rtype: str
-    """
-
-    PMO = ["PMO Analyst"]
-    PM = ["Technical Lead", "Senior Technical Lead", "Technical Project Manager, Engineering", "Technical Project Manager, Managed Services",
-          "Senior Technical Project Manager, Engineering", "Quality Assurance Lead", ]
-    employee = db_connector.collection(Collections.EMPLOYEES).find_one(
-        {"employee_id": employee_id}, {"_id": 0, "designation": 1})
-
-    designation = employee["designation"]
-
-    if designation in PMO:
-        return UserRoles.APPROVER
-    elif designation in PM:
-        return UserRoles.LEAD
-    else:
-        return UserRoles.USER
-
 
 def get_user_name(employee_id) -> str:
     """

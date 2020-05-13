@@ -18,8 +18,8 @@ from ...models.projects import (
     AllocationForProject,
 )
 
-from ...models.auth import User, UserRoles
-
+from ...models.auth import User
+from ...utils.role_manager import UserRoles
 from ...security.auth import lead_approver_permission
 
 router = APIRouter()

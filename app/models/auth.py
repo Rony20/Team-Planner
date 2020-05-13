@@ -24,10 +24,3 @@ class TokenData(BaseModel):
     name: str
     role: str
     token: str
-
-class UserRoles(str, Enum):
-    "This class contails roles for accesing application endpoints"
-
-    APPROVER = 'Approver'
-    LEAD = "Lead"
-    USER = "User"
