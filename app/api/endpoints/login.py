@@ -12,4 +12,7 @@ security = HTTPBasic()
 @router.get("/login", response_model=TokenData)
 def login_api(credentials: HTTPBasicCredentials = Depends(security)):
    return create_new_token(credentials.username, credentials.password)
-   
+
+@router.get("/get-login-user")
+def get_login_user_api(current_user: User = Depends(get_current_user)):
+   return current_user
