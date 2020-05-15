@@ -2,7 +2,7 @@ import os
 
 from dotenv import load_dotenv
 
-load_dotenv('.env')
+load_dotenv(".env")
 
 # MongoDB Credentials
 
@@ -14,14 +14,14 @@ MONGO_PORT = os.getenv("MONGO_PORT")
 # Fetching MongoDB credentials form environment file"
 
 MONGODB_URI = (f"mongodb://{MONGO_USER}"
-               f":{os.environ['MONGO_PASSWORD']}@{os.environ['MONGO_HOST']}"
-               f":{os.environ['MONGO_PORT']}")
+               f":{MONGO_PASSWORD}@{MONGO_HOST}"
+               f":{MONGO_PORT}")
 
 # Jira credentials
 
-JIRA_URL = os.getenv('JIRA_URL')
-JIRA_USER = os.getenv('JIRA_USER')
-JIRA_PASSWORD = os.getenv('JIRA_PASSWORD')
+JIRA_URL = os.getenv("JIRA_URL")
+JIRA_USER = os.getenv("JIRA_USER")
+JIRA_PASSWORD = os.getenv("JIRA_PASSWORD")
 
 # HRMS Credentials
 
@@ -38,8 +38,8 @@ AD_DOMAIN = os.getenv("AD_DOMAIN")
 OU = os.getenv("OU")
 
 #Active Directory Superuser
-SUPERUSER_USERNAME = os.getenv('SUPERUSER_USERNAME')
-SUPERUSER_PASSWORD = os.getenv('SUPERUSER_PASSWORD')
+SUPERUSER_USERNAME = os.getenv("SUPERUSER_USERNAME")
+SUPERUSER_PASSWORD = os.getenv("SUPERUSER_PASSWORD")
 
 #JWT
 SECRET_KEY = os.getenv("SECRET_KEY")
