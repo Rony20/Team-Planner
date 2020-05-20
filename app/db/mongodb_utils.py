@@ -14,6 +14,7 @@ class Collections(str, Enum):
     PROJECTS = "projects"
     EMPLOYEES = "employees"
     COC = "COC"
+    REQUESTS = "requests"
     LOGS = "logs"
 
 class DatabaseConnector(metaclass=Singleton):

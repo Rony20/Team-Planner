@@ -9,8 +9,11 @@ from ..db.mongodb_utils import DatabaseConnector, Collections
 from ..utils.jira_plugin import get_project_keys, get_all_jira_projects
 from ..crud.projects import create_project
 from ..crud.dropdowns import get_pm_list
+from ..utils.logger import Logger
+
 
 db_connector = DatabaseConnector()
+logger = Logger()
 
 
 def get_pm_id(name):
@@ -91,8 +94,11 @@ def sync_jira_with_database() -> None:
     """
 
     untracked_keys = get_untracked_keys()
+    logger.info(f"JIRA projects successfully fetched.")
+
     if len(untracked_keys) != 0:
         list_of_jira_projects = get_all_jira_projects(untracked_keys)
 
         for project in list_of_jira_projects:
             insert_project_into_database(project)
+    logger.info(f"JIRA sync successfully done.")

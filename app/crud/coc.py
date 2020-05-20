@@ -1,6 +1,6 @@
+from ..db.mongodb_utils import DatabaseConnector, Collections
 from enum import Enum
 
-from ..db.mongodb_utils import DatabaseConnector, Collections
 
 db_connector = DatabaseConnector()
 

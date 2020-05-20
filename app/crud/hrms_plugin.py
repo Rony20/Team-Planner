@@ -1,12 +1,10 @@
 import json
 from collections import namedtuple
 
-from ..utils.hrms_plugin import get_auth_token, get_graphql_response
+from ..utils.hrms_plugin import get_auth_token, get_graphql_response, USERS_LIST, SKILL_LIST, TECHONOLOGY_LIST
 from ..db.mongodb_utils import DatabaseConnector, Collections
 from ..crud.employees import create_employee, edit_employee
-from ..utils.hrms_plugin import USERS_LIST, SKILL_LIST, TECHONOLOGY_LIST
 from .coc import add_coc, map_skill_with_coc
-from ..crud.employees import create_employee
 from ..models.employees import UpdateEmployee, Employee
 from ..utils.logger import Logger
 
@@ -103,8 +101,6 @@ def check_employee_in_database(users_list_in_hrms) -> None:
                 update_skill_obj = UpdateEmployee(
                     **{'skills': list(set(map_skill_with_coc(user["skill"])))})
                 edit_employee(int(user["empCode"]), update_skill_obj)
-            elif change_required == "unchanged":
-                pass
 
 
 def sync_hrms_with_database():
@@ -119,7 +115,6 @@ def sync_hrms_with_database():
 
     technology_list = get_graphql_response(TECHONOLOGY_LIST, hrms_token)
     skills_list = skills_list + technology_list["data"]["allTechnology"]
-    
     add_coc(skills_list, "skills")
 
     users_response = get_graphql_response(USERS_LIST, hrms_token)
@@ -129,7 +124,6 @@ def sync_hrms_with_database():
 
     pm_list = []
     pmo_list = []
-    users_in_hrms = []
 
     for employee in users_list:
         if ("Technical Lead" or "Project Manager") in employee["designation"]:

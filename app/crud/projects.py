@@ -12,8 +12,11 @@ from ..models.projects import (
     ProjectUpdationByPm,
     AllocationForProject
 )
+from ..utils.logger import Logger
+
 
 db_connector = DatabaseConnector()
+logger = Logger()
 
 
 def create_project(project: Project) -> bool:
@@ -32,6 +35,7 @@ def create_project(project: Project) -> bool:
             project["allocated_employees"])
     created_document = db_connector.collection(
         Collections.PROJECTS).insert_one(project)
+    logger.info(f"New project '{project.project_id}' added to Database.")
     return created_document.acknowledged
 
 
@@ -103,12 +107,6 @@ def update_project_details_pmo(update_details_obj: ProjectUpdationByPmo, pid: st
     :return: Returns a updated document from database otherwise returns None.
     :rtype: dict
     """
-
-    project_at_pid = db_connector.collection(Collections.PROJECTS).find_one({
-        "project_id": pid}, {"_id": 0})
-    if project_at_pid == None:
-        raise HTTPException(404, "Project not found")
-
     my_query = {"project_id": pid}
     update_details_obj = update_details_obj.dict(exclude_unset=True)
     update_details_obj = jsonable_encoder(update_details_obj)
@@ -125,6 +123,9 @@ def update_project_details_pmo(update_details_obj: ProjectUpdationByPmo, pid: st
                     },
         return_document=ReturnDocument.AFTER
     )
+
+    if updated_obj.acknowledged:
+        logger.info(f"Project '{pid}' is updated in database.")
     return updated_obj
 
 
@@ -157,6 +158,8 @@ def update_project_details_pm(update_details_obj: ProjectUpdationByPm, pid: str)
         projection={"_id": False},
         return_document=ReturnDocument.AFTER
     )
+    if updated_obj.acknowledged:
+        logger.info(f"Project '{pid}' is updated in database.")
     return update_information_object
 
 
@@ -166,7 +169,7 @@ def create_update_team(req_obj: Dict, pid: str) -> dict:
 
     :param req_obj: contains list of integers representing employees
     :type req_obj: Dict
-    :param pid: An string value representing unique project in the database.
+    :param pid: A string value representing unique project in the database.
     :type pid: str
     :return: Returns a updated document from database otherwise returns None.
     :rtype: dict
@@ -199,3 +202,85 @@ def create_update_team(req_obj: Dict, pid: str) -> dict:
             return_document=ReturnDocument.AFTER
         )
     return updated_obj
+
+
+def get_projects_with_remaining_requests(pm_id: int) -> dict:
+    """
+    get_projects_with_remaining_requests method takes pm_id as argument and
+    returns a list of projects under a particular pm whose requests are to remaining to be made.
+
+    :param pm_id: A integer value representing unique pm in the database.
+    :type pm_id: int
+    :return: projects list whose requests are remaining.
+    :rtype: list
+    """
+    requested_projects_of_pm = []
+    all_projects_of_pm = []
+
+    today = datetime.today()
+    start = (today - timedelta(days=today.weekday())) + timedelta(days=7)
+    end = start + timedelta(days=6)
+    week_start = start.strftime('%d-%m-%Y')
+    week_end = end.strftime('%d-%m-%Y')
+
+    requested_projects = db_connector.collection(Collections.REQUESTS).find({
+        "pm_id": pm_id, "requested_week": [week_start, week_end]
+    }, {"_id": 0, "project_id": 1})
+
+    for project in requested_projects:
+        if project["project_id"] not in requested_projects_of_pm:
+            requested_projects_of_pm.append(project["project_id"])
+
+    all_projects = db_connector.collection(Collections.PROJECTS).find({
+        "assigned_pm": pm_id}, {"_id": 0, "project_id": 1}
+    )
+
+    for project in all_projects:
+        all_projects_of_pm.append(project["project_id"])
+    remaining_projects_list = list(
+        set(all_projects_of_pm)-set(requested_projects_of_pm))
+    remaining_projects_object = {}
+    for project in remaining_projects_list:
+        employee_coc = []
+        employees = db_connector.collection(Collections.PROJECTS).find_one(
+            {"project_id": project}, {"_id": 0, "allocated_employees": 1})
+        employees = employees["allocated_employees"]
+        for employee in employees:
+            employee_coc.append(employee["id"])
+        remaining_projects_object.update({project: employee_coc})
+    return remaining_projects_object
+
+
+def get_project_team(pm_id: int) -> dict:
+    """
+    get_project_team method takes pm_id as argument and returns the team
+    key-value pairs of project-id and assigned-employees for all projects
+    under a particular pm.
+
+    :param pm_id: A integer value representing unique pm in the database.
+    :type pm_id: int
+    :return: dict with key-value pairs of project-id and assigned employees.
+    :rtype: dict
+    """
+
+    today = datetime.today()
+    start = (today - timedelta(days=today.weekday())) + timedelta(days=7)
+    end = start + timedelta(days=6)
+    week_start = start.strftime('%d-%m-%Y')
+    week_end = end.strftime('%d-%m-%Y')
+
+    project_list = get_projects_with_remaining_requests(
+        pm_id, week_start, week_end)
+    project_team = {}
+    response = db_connector.collection(Collections.PROJECTS).find(
+        {"assigned_pm": pm_id}, {"_id": 0, "project_id": 1, "allocated_employees.id": 1})
+
+    for project in project_list:
+        response = db_connector.collection(Collections.PROJECTS).find_one(
+            {"project_id": project}, {"_id": 0, "allocated_employees.id": 1})
+        emplist = []
+        for employee in response["allocated_employees"]:
+            emplist.append(employee["id"])
+        project_team[project] = emplist
+
+    return project_team

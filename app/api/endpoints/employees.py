@@ -1,6 +1,6 @@
 from fastapi import APIRouter, FastAPI, Query, Path, HTTPException, Depends, status
 from pydantic import BaseModel, ValidationError, validator
-from pymongo import MongoClient
+from pymongo import MongoClient, ReturnDocument
 from typing import List, Dict
 from fastapi.exceptions import RequestValidationError
 from fastapi.encoders import jsonable_encoder

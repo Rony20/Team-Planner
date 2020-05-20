@@ -13,8 +13,10 @@ from ..models.employees import (
     AllocationForProject,
     Availability
 )
+from ..utils.logger import Logger
 
 db_connector = DatabaseConnector()
+logger = Logger()
 
 
 def create_employee(employee: Employee) -> bool:
@@ -26,7 +28,6 @@ def create_employee(employee: Employee) -> bool:
     :return: Return a boolean value indicating whether the employee has been added to database or not.
     :rtype: bool
     """
-
     response_object = db_connector.collection(
         Collections.EMPLOYEES).insert_one({
             "employee_id": employee.employee_id,
@@ -38,6 +39,8 @@ def create_employee(employee: Employee) -> bool:
             "availability": jsonable_encoder(employee.availability),
             "is_allocated": employee.is_allocated
         })
+    
+    logger.info(f"Employee '{employee.employee_id}' is added in database.")
     return response_object.acknowledged
 
 
@@ -54,8 +57,9 @@ def edit_employee(employee_id: int, update_employee: UpdateEmployee) -> dict:
     """
 
     my_query = {"employee_id": employee_id}
-    new_values = update_employee.dict(exclude_unset=True)
+    changed_employee = {}
 
+    new_values = update_employee.dict(exclude_unset=True)
     if ("current_projects" or "past_projects") in new_values:
         changed_employee = db_connector.collection(
             Collections.EMPLOYEES).find_one_and_update(
@@ -74,6 +78,9 @@ def edit_employee(employee_id: int, update_employee: UpdateEmployee) -> dict:
             },
             projection={"_id": False},
             return_document=ReturnDocument.AFTER)
+    if changed_employee.acknowledged:
+        logger.info(f"Employee '{employee_id}' is updated in database.")
+
     return changed_employee
 
 
@@ -89,7 +96,6 @@ def send_all_employee() -> List:
             Collections.EMPLOYEES).find({}, {"_id": False}):
         all_employees.append(emp_obj)
     return all_employees
-
 
 
 def send_employee_by_id(employee_id: int) -> dict:
