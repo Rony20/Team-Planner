@@ -13,8 +13,9 @@ router = APIRouter()
 """
     api to sync projects with JIRA
 """
+#def return_jira_projects(sync_name: str, user: User = Depends(lead_approver_permission)):
 @router.get("/sync/{sync_name}")
-def return_jira_projects(sync_name: str, user: User = Depends(lead_approver_permission)):
+def return_jira_projects(sync_name: str):
     if sync_name == 'jira':
         sync_jira_with_database()
         return "success"
