@@ -39,9 +39,9 @@ def update_employee_api(employee_id: int, update_employee: UpdateEmployee, user:
 
 
 # to get all employee details
-
+#def send_all_employee_api(user: User = Depends(lead_approver_permission)) -> Dict:
 @router.get("/get-all-employees")
-def send_all_employee_api(user: User = Depends(lead_approver_permission)) -> Dict:
+def send_all_employee_api() -> Dict:
     return send_all_employee()
 
 # to get a paticular employee detail

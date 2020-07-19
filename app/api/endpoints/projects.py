@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends
 from typing import List, Dict
+from fastapi.exceptions import HTTPException
 
 from ...crud.projects import (
     update_project_details_pmo,

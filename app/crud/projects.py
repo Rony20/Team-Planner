@@ -10,7 +10,8 @@ from ..models.projects import (
     Project,
     ProjectUpdationByPmo,
     ProjectUpdationByPm,
-    AllocationForProject
+    AllocationForProject,
+    projectUpdationOnJiraSync
 )
 from ..utils.logger import Logger
 
@@ -19,7 +20,7 @@ db_connector = DatabaseConnector()
 logger = Logger()
 
 
-def create_project(project: Project) -> bool:
+def create_project(project) -> bool:
     """
     create_project method takes project object as an argument and creates a record in the database.
 
@@ -29,13 +30,13 @@ def create_project(project: Project) -> bool:
     :rtype: bool
     """
 
-    project = dict(project)
-    if project["allocated_employees"] != None:
-        project["allocated_employees"] = jsonable_encoder(
-            project["allocated_employees"])
+    #project = dict(project)
+    #if project["allocated_employees"] != None:
+    #    project["allocated_employees"] = jsonable_encoder(
+    #        project["allocated_employees"])
     created_document = db_connector.collection(
         Collections.PROJECTS).insert_one(project)
-    logger.info(f"New project '{project.project_id}' added to Database.")
+    logger.info(f"New project added to Database.")
     return created_document.acknowledged
 
 
@@ -95,6 +96,22 @@ def get_project_by_name(project_name: str) -> list:
         return list_project
 
 
+def update_existing_project_on_jirasync(update_details_obj:projectUpdationOnJiraSync,pid:str) -> bool:
+    """
+    """
+    my_query = {"epic_id": pid}
+
+    updated_obj = db_connector.collection(Collections.PROJECTS).find_one_and_update(
+        my_query,
+        {
+            "$set": update_details_obj
+        }
+    )
+
+    logger.info(f"Project '{pid}' is updated in database.")
+    return True
+
+
 def update_project_details_pmo(update_details_obj: ProjectUpdationByPmo, pid: str) -> dict:
     """
     update_project_details_pmo method takes updation required in the project as object in argument and returns int.
@@ -107,7 +124,7 @@ def update_project_details_pmo(update_details_obj: ProjectUpdationByPmo, pid: st
     :return: Returns a updated document from database otherwise returns None.
     :rtype: dict
     """
-    my_query = {"project_id": pid}
+    my_query = {"epic_id": pid}
     update_details_obj = update_details_obj.dict(exclude_unset=True)
     update_details_obj = jsonable_encoder(update_details_obj)
 
@@ -117,15 +134,14 @@ def update_project_details_pmo(update_details_obj: ProjectUpdationByPmo, pid: st
             "$set": update_details_obj
         },
         projection={"_id": False,
-                    "allocated_employees": False,
                     "description": False,
                     "status": False
                     },
         return_document=ReturnDocument.AFTER
     )
 
-    if updated_obj.acknowledged:
-        logger.info(f"Project '{pid}' is updated in database.")
+    #if updated_obj.acknowledged:
+    #    logger.info(f"Project '{pid}' is updated in database.")
     return updated_obj
 
 

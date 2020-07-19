@@ -25,5 +25,5 @@ def return_jira_projects(sync_name: str, user: User = Depends(lead_approver_perm
         raise HTTPException(404, f"{sync_name} is not valid parameter")
 
 @router.get("/all-dropdowns")
-def return_dropdowns(user: User = Depends(get_current_user)):
+def return_dropdowns():
     return get_dropdowns()

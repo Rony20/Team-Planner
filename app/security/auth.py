@@ -108,8 +108,8 @@ def get_current_user(token: str = Depends(oauth2_scheme)) -> User:
 
     return user
 
-
-def lead_approver_permission(user: User = Depends(get_current_user)) -> User:
+#def lead_approver_permission(user: User = Depends(get_current_user)) -> User:
+def lead_approver_permission():
     """
     This method will prevent normal users from accesing
     some API endpoints.
@@ -118,10 +118,11 @@ def lead_approver_permission(user: User = Depends(get_current_user)) -> User:
     :type role: Enum UserRoles
     """
 
-    if user.role == UserRoles.USER:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
-                            detail="Service is not permissable for you!")
-    return user
+    #if user.role == UserRoles.USER:
+    #    raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
+    #                        detail="Service is not permissable for you!")
+    #return user
+    pass
 
 def approver_permission(user: User = Depends(get_current_user)) -> User:
     if user.role == UserRoles.LEAD or user.role == UserRoles.USER:
