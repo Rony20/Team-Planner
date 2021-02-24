@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends
 from typing import List, Dict
+from fastapi.exceptions import HTTPException
 
 from ...crud.projects import (
     update_project_details_pmo,
@@ -27,16 +28,18 @@ router = APIRouter()
 """
     api which create new project
 """
+#def create_project_api(project: Project, user: User = Depends(lead_approver_permission)) -> bool
 @router.post("/api/create-project/")
-def create_project_api(project: Project, user: User = Depends(lead_approver_permission)) -> bool:
+def create_project_api(project: Project) -> bool:
     return create_project(project)
 
 
 """
     api which will get all projects information
 """
+#def get_all_project_details_api(user: User = Depends(lead_approver_permission)):
 @router.get("/api/all-project-details")
-def get_all_project_details_api(user: User = Depends(lead_approver_permission)):
+def get_all_project_details_api():
     return get_all_project_details()
 
 
@@ -44,8 +47,9 @@ def get_all_project_details_api(user: User = Depends(lead_approver_permission)):
     api which will get specific project information
     whose pid is passed in path parameter
 """
+#def get_project_by_pid_api(pid: str, user: User = Depends(lead_approver_permission))
 @router.get("/api/projectdata-by-pid/{pid}")
-def get_project_by_pid_api(pid: str, user: User = Depends(lead_approver_permission)):
+def get_project_by_pid_api(pid: str):
     return get_project_by_pid(pid)
 
 
@@ -61,8 +65,9 @@ def get_project_by_name_api(project_name: str, user: User = Depends(lead_approve
 """
     api which will update project details by pmo
 """
+#def update_project_details_pmo_api(update_details_obj: ProjectUpdationByPmo, pid: str, user: User = Depends(lead_approver_permission))
 @router.patch("/api/update-project-details-pmo/{pid}")
-def update_project_details_pmo_api(update_details_obj: ProjectUpdationByPmo, pid: str, user: User = Depends(lead_approver_permission)) -> int:
+def update_project_details_pmo_api(update_details_obj: ProjectUpdationByPmo, pid: str) -> int:
     return update_project_details_pmo(update_details_obj, pid)
 
 

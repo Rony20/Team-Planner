@@ -1,6 +1,7 @@
 from pydantic import BaseModel, ValidationError, validator
 from typing import List, Dict
 from datetime import datetime
+from fastapi.exceptions import HTTPException
 import re
 
 date_regex = re.compile(
@@ -62,29 +63,20 @@ class ProjectUpdationByPmo(BaseModel):
     ProjectUpdationByPmo class has all attributes which can be changed by pmo
     """
 
-    project_name: str = None
-    @validator("project_name")
-    def validate_name(cls, value):
-        if value == "":
-            raise ValueError("Invalid : ProjectName cannot be empty")
-        return value
-    assigned_pm: int = None
-    start_date: str = None
-    end_date: str = None
     skillset: List[int] = None
-    allowed_users: List[int] = None
-    @validator("start_date")
-    def validate_date(cls, value):
-        if(not validate_date(value)):
-            raise ValueError("Invalid Date format.")
-        return value
+    end_date: str = None
+    #@validator("end_date")
+    #def validate_date2(cls, value):
+    #    if(not validate_date(value)):
+    #        raise ValueError("Invalid Date format.")
+    #    return value
 
-    @validator("end_date")
-    def validate_date2(cls, value):
-        if(not validate_date(value)):
-            raise ValueError("Invalid Date format.")
-        return value
-
+class projectUpdationOnJiraSync(BaseModel):
+    """
+    """
+    logged_hours: str = None
+    status: str = None
+    end_date: str = None
 
 class Project(BaseModel):
     """

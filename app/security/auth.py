@@ -17,6 +17,7 @@ db_connector = DatabaseConnector()
 expires_delta = ACCESS_TOKEN_EXPIRES_MINUTES
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/login")
 
+
 def get_user_name(employee_id) -> str:
     """
     :param employee_id: unique id of employee.
@@ -109,19 +110,22 @@ def get_current_user(token: str = Depends(oauth2_scheme)) -> User:
     return user
 
 
-def lead_approver_permission(user: User = Depends(get_current_user)) -> User:
+# def lead_approver_permission(user: User = Depends(get_current_user)) -> User:
+def lead_approver_permission():
     """
-    This method will prevent normal users from accesing
-    some API endpoints.
+      This method will prevent normal users from accesing
+      some API endpoints.
 
-    :param role: role of employee.
-    :type role: Enum UserRoles
-    """
+      :param role: role of employee.
+      :type role: Enum UserRoles
+      """
 
-    if user.role == UserRoles.USER:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
-                            detail="Service is not permissable for you!")
-    return user
+#    if user.role == UserRoles.USER:
+#         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
+#                             detail="Service is not permissable for you!")
+#     return user
+    pass
+
 
 def approver_permission(user: User = Depends(get_current_user)) -> User:
     if user.role == UserRoles.LEAD or user.role == UserRoles.USER:
